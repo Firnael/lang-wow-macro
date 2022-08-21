@@ -1,7 +1,7 @@
 {
-  "name": "codemirror-lang-EXAMPLE",
+  "name": "codemirror-lang-wow-macro",
   "version": "0.1.0",
-  "description": "EXAMPLE language support for CodeMirror",
+  "description": "World of Warcraft in-game macros language support for CodeMirror",
   "scripts": {
     "test": "mocha test/test.js",
     "prepare": "rollup -c"
@@ -28,5 +28,8 @@
     "rollup-plugin-ts": "^2.0.4",
     "typescript": "^4.3.4"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "volta": {
+    "node": "16.17.0"
+  }
 }
