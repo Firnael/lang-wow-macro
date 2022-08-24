@@ -12,11 +12,12 @@ export const WowMacroLanguage = LRLanguage.define({
         Application: foldInside
       }),
       styleTags({
+        Function: t.labelName,
         Identifier: t.variableName,
         Boolean: t.bool,
         String: t.string,
-        LineComment: t.lineComment,
-        "( )": t.paren
+        "( )": t.paren,
+        "[ ]": t.bracket
       })
     ]
   }),

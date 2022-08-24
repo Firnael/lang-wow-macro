@@ -1,8 +1,9 @@
 @top Program { expression* }
 
-@skip { space | LineComment }
+@skip { space }
 
 expression {
+  Function { "/" Identifier } |
   Identifier |
   String |
   Boolean |
@@ -10,13 +11,11 @@ expression {
 }
 
 @tokens {
-  Identifier { $[a-zA-Z_\-0-9]+ }
+  Identifier { @asciiLowercase+ }
 
   String { '"' (!["\\] | "\\" _)* '"' }
 
   Boolean { "#t" | "#f" }
-
-  LineComment { ";" ![\n]* }
 
   space { $[ \t\n\r]+ }
 

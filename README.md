@@ -19,3 +19,8 @@ Things you'll need to do (see the [language support example](https://codemirror.
  * Optionally add a license.
 
  * Publish. Put your package on npm under a name like `codemirror-lang-EXAMPLE`.
+
+ ## WoW macro specifications
+
+ - cannot contain comments (either line, block, etc.), thus has no character dedicated to commenting
+ - functions start with a `/`

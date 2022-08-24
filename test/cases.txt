@@ -1,3 +1,12 @@
+# Functions
+
+/cast
+/use
+
+==>
+
+Program(Function(Identifier), Function(Identifier))
+
 # Booleans
 
 #t
@@ -10,7 +19,7 @@ Program(Boolean, Boolean)
 # Identifiers
 
 one
-Two_Three
+two
 
 ==>
 
