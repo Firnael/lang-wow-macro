@@ -32,10 +32,10 @@ export function WowMacro() {
 }
 
 export const WowMacroHighlightStyle = HighlightStyle.define([
-  { tag: t.annotation, color: "#ff0000" },   // ShowTooltip => red
-  { tag: t.labelName, color: "#00bfff" },    // Function    => light blue
-  { tag: t.variableName, color: "#9370db" }, // Identifier  => purple
-  { tag: t.keyword, color: "#fc6fff" },      // Condition   => magenta
-  { tag: t.bracket, color: '#ffcc66' },      // Brackets    => yellow
+  { tag: t.annotation, color: "#ff0" },   // ShowTooltip => red
+  { tag: t.labelName, color: "#00b" },    // Function    => light blue
+  { tag: t.variableName, color: "#937" }, // Identifier  => purple
+  { tag: t.keyword, color: "#fc6" },      // Condition   => magenta
+  { tag: t.bracket, color: '#ffc' },      // Brackets    => yellow
   { tag: t.comment, color: "#f5d", fontStyle: "italic" }, // forest green
 ])
