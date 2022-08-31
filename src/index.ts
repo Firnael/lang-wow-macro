@@ -1,6 +1,8 @@
 import { parser } from "./syntax.grammar"
 import { LRLanguage, LanguageSupport, HighlightStyle, indentNodeProp, foldNodeProp, foldInside, delimitedIndent } from "@codemirror/language"
+import { completeFromList } from "@codemirror/autocomplete"
 import { styleTags, tags as t } from "@lezer/highlight"
+
 
 export const WowMacroLanguage = LRLanguage.define({
   parser: parser.configure({
@@ -27,9 +29,13 @@ export const WowMacroLanguage = LRLanguage.define({
   }
 })
 
-export function WowMacro() {
-  return new LanguageSupport(WowMacroLanguage)
-}
+export const WowMacroCompletion = WowMacroLanguage.data.of({
+  autocomplete: completeFromList([
+    {label: "/cast", type: "labelName"},
+    {label: "/use", type: "labelName"},
+    {label: "/target", type: "labelName"},
+  ])
+})
 
 export const WowMacroHighlightStyle = HighlightStyle.define([
   { tag: t.annotation, color: "#ff0" },   // ShowTooltip => red
@@ -39,3 +45,7 @@ export const WowMacroHighlightStyle = HighlightStyle.define([
   { tag: t.bracket, color: '#ffc' },      // Brackets    => yellow
   { tag: t.comment, color: "#f5d", fontStyle: "italic" }, // forest green
 ])
+
+export function WowMacro() {
+  return new LanguageSupport(WowMacroLanguage, [WowMacroCompletion])
+}
