@@ -16,15 +16,6 @@ Program(Function, Function)
 
 Program(Condition, Condition)
 
-# Booleans
-
-#t
-#f
-
-==>
-
-Program(Boolean, Boolean)
-
 # Identifiers
 
 one

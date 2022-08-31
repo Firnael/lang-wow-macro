@@ -1,12 +1,12 @@
-import {parser} from "./syntax.grammar"
-import {LRLanguage, LanguageSupport, HighlightStyle, indentNodeProp, foldNodeProp, foldInside, delimitedIndent} from "@codemirror/language"
-import {styleTags, tags as t} from "@lezer/highlight"
+import { parser } from "./syntax.grammar"
+import { LRLanguage, LanguageSupport, HighlightStyle, indentNodeProp, foldNodeProp, foldInside, delimitedIndent } from "@codemirror/language"
+import { styleTags, tags as t } from "@lezer/highlight"
 
 export const WowMacroLanguage = LRLanguage.define({
   parser: parser.configure({
     props: [
       indentNodeProp.add({
-        Application: delimitedIndent({closing: ")", align: false})
+        Application: delimitedIndent({ closing: ")", align: false })
       }),
       foldNodeProp.add({
         Application: foldInside
@@ -23,7 +23,7 @@ export const WowMacroLanguage = LRLanguage.define({
     ]
   }),
   languageData: {
-    commentTokens: {line: ";"}
+    commentTokens: { line: ";" }
   }
 })
 
@@ -32,8 +32,9 @@ export function WowMacro() {
 }
 
 export const WowMacroHighlightStyle = HighlightStyle.define([
-  {tag: t.labelName, color: "#v"}, // light green
-  {tag: t.variableName, color: "#fc6"}, // yellow
-  {tag: t.keyword, color: "#fc6fff"}, // magenta
-  {tag: t.comment, color: "#f5d", fontStyle: "italic"} // forest green
+  { tag: t.labelName, color: "#00bfff" }, // light blue
+  { tag: t.variableName, color: "#9370db" }, // purple
+  { tag: t.keyword, color: "#fc6fff" }, // magenta
+  { tag: t.bracket, color: '#ffcc66' }, // yellow
+  { tag: t.comment, color: "#f5d", fontStyle: "italic" }, // forest green
 ])
