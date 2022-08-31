@@ -3,8 +3,8 @@
 @skip { space }
 
 expression {
-  Function { "/" Identifier } |
-  Condition { "[" Identifier "]" } |
+  Function |
+  Condition |
   Identifier |
   String |
   Boolean |
@@ -13,6 +13,10 @@ expression {
 
 @tokens {
   Identifier { @asciiLowercase+ }
+
+  Function { '/' @asciiLowercase+ }
+
+  Condition { '[' @asciiLowercase+ ']' }
 
   String { '"' (!["\\] | "\\" _)* '"' }
 

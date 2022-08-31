@@ -5,7 +5,7 @@
 
 ==>
 
-Program(Function(Identifier), Function(Identifier))
+Program(Function, Function)
 
 # Conditions
 
@@ -14,7 +14,7 @@ Program(Function(Identifier), Function(Identifier))
 
 ==>
 
-Program(Condition(Identifier), Condition(Identifier))
+Program(Condition, Condition)
 
 # Booleans
 

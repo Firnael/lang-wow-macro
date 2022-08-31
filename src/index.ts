@@ -18,7 +18,7 @@ export const WowMacroLanguage = LRLanguage.define({
         Boolean: t.bool,
         String: t.string,
         "( )": t.paren,
-        "[ ]": t.bracket
+        "[ ]": t.bracket,
       })
     ]
   }),
@@ -32,8 +32,8 @@ export function WowMacro() {
 }
 
 export const WowMacroHighlightStyle = HighlightStyle.define([
-  {tag: t.labelName, color: "#61ab4d"},
-  {tag: t.variableName, color: "#fc6"},
-  {tag: t.keyword, color: "#fc6fff"},
-  {tag: t.comment, color: "#f5d", fontStyle: "italic"}
+  {tag: t.labelName, color: "#v"}, // light green
+  {tag: t.variableName, color: "#fc6"}, // yellow
+  {tag: t.keyword, color: "#fc6fff"}, // magenta
+  {tag: t.comment, color: "#f5d", fontStyle: "italic"} // forest green
 ])
