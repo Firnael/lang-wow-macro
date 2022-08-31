@@ -1,5 +1,5 @@
 import {parser} from "./syntax.grammar"
-import {LRLanguage, LanguageSupport, indentNodeProp, foldNodeProp, foldInside, delimitedIndent} from "@codemirror/language"
+import {LRLanguage, LanguageSupport, HighlightStyle, indentNodeProp, foldNodeProp, foldInside, delimitedIndent} from "@codemirror/language"
 import {styleTags, tags as t} from "@lezer/highlight"
 
 export const WowMacroLanguage = LRLanguage.define({
@@ -14,6 +14,7 @@ export const WowMacroLanguage = LRLanguage.define({
       styleTags({
         Function: t.labelName,
         Identifier: t.variableName,
+        Condition: t.keyword,
         Boolean: t.bool,
         String: t.string,
         "( )": t.paren,
@@ -29,3 +30,10 @@ export const WowMacroLanguage = LRLanguage.define({
 export function WowMacro() {
   return new LanguageSupport(WowMacroLanguage)
 }
+
+export const WowMacroHighlightStyle = HighlightStyle.define([
+  {tag: t.labelName, color: "#61ab4d"},
+  {tag: t.variableName, color: "#fc6"},
+  {tag: t.keyword, color: "#fc6fff"},
+  {tag: t.comment, color: "#f5d", fontStyle: "italic"}
+])

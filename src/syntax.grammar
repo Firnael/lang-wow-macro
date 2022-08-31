@@ -4,6 +4,7 @@
 
 expression {
   Function { "/" Identifier } |
+  Condition { "[" Identifier "]" } |
   Identifier |
   String |
   Boolean |

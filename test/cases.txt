@@ -7,6 +7,15 @@
 
 Program(Function(Identifier), Function(Identifier))
 
+# Conditions
+
+[noharm]
+[dead]
+
+==>
+
+Program(Condition(Identifier), Condition(Identifier))
+
 # Booleans
 
 #t
