@@ -12,10 +12,10 @@ export const WowMacroLanguage = LRLanguage.define({
         Application: foldInside
       }),
       styleTags({
+        ShowTooltip: t.annotation,
         Function: t.labelName,
         Identifier: t.variableName,
         Condition: t.keyword,
-        Boolean: t.bool,
         String: t.string,
         "( )": t.paren,
         "[ ]": t.bracket,
@@ -32,9 +32,10 @@ export function WowMacro() {
 }
 
 export const WowMacroHighlightStyle = HighlightStyle.define([
-  { tag: t.labelName, color: "#00bfff" }, // light blue
-  { tag: t.variableName, color: "#9370db" }, // purple
-  { tag: t.keyword, color: "#fc6fff" }, // magenta
-  { tag: t.bracket, color: '#ffcc66' }, // yellow
+  { tag: t.annotation, color: "#ff0000" },   // ShowTooltip => red
+  { tag: t.labelName, color: "#00bfff" },    // Function    => light blue
+  { tag: t.variableName, color: "#9370db" }, // Identifier  => purple
+  { tag: t.keyword, color: "#fc6fff" },      // Condition   => magenta
+  { tag: t.bracket, color: '#ffcc66' },      // Brackets    => yellow
   { tag: t.comment, color: "#f5d", fontStyle: "italic" }, // forest green
 ])

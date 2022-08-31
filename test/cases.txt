@@ -37,7 +37,7 @@ Program(String, String)
 # Applications
 
 (begin
-  (when #t
+  (when #showtooltip
     (print (concat "hello" " " "world")))
   (print "DONE"))
 
@@ -45,6 +45,6 @@ Program(String, String)
 
 Program(Application(
   Identifier,
-  Application(Identifier, Boolean, Application(
+  Application(Identifier, ShowTooltip, Application(
     Identifier, Application(Identifier, String, String, String)))
   Application(Identifier, String)))
