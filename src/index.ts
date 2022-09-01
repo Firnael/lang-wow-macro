@@ -18,7 +18,7 @@ export const WowMacroLanguage = LRLanguage.define({
         Function: t.labelName,
         Identifier: t.variableName,
         Condition: t.keyword,
-        String: t.string,
+        ConditionOperator: t.logicOperator,
         "( )": t.paren,
         "[ ]": t.bracket,
       })
@@ -38,12 +38,12 @@ export const WowMacroCompletion = WowMacroLanguage.data.of({
 })
 
 export const WowMacroHighlightStyle = HighlightStyle.define([
-  { tag: t.annotation, color: "#ff0" },   // ShowTooltip => red
-  { tag: t.labelName, color: "#00b" },    // Function    => light blue
-  { tag: t.variableName, color: "#937" }, // Identifier  => purple
-  { tag: t.keyword, color: "#fc6" },      // Condition   => magenta
-  { tag: t.bracket, color: '#ffc' },      // Brackets    => yellow
-  { tag: t.comment, color: "#f5d", fontStyle: "italic" }, // forest green
+  { tag: t.bracket, color: "#ffd000" },       // Brackets    => yellow
+  { tag: t.logicOperator, color: "#ffd000" }, // ';'         => yellow
+  { tag: t.annotation, color: "#8fbc8f" },    // ShowTooltip => dark sea green
+  { tag: t.labelName, color: "#00bfff" },     // Function    => light blue
+  { tag: t.variableName, color: "#9370db" },  // Identifier  => purple
+  { tag: t.keyword, color: "#ff00ff" },       // Condition   => magenta
 ])
 
 export function WowMacro() {

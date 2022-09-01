@@ -1,28 +1,28 @@
-@top Program { expression* }
+@top Program { Line* }
 
-@skip { space }
+Line { (ShowTooltip | Function expression*) NewLine?}
 
 expression {
-  ShowTooltip |
-  Function |
   Condition |
-  Identifier |
-  String |
-  Application { "(" expression* ")" }
+  ConditionOperator |
+  Identifier
 }
 
 @tokens {
-  ShowTooltip { '#showtooltip' }
+  ShowTooltip { "#showtooltip" }
 
   Identifier { @asciiLetter+ }
 
   Function { '/' @asciiLowercase+ }
 
-  Condition { '[' @asciiLowercase+ ']' }
+  Condition { '[' '@'? @asciiLowercase+ ']' }
 
-  String { '"' (!["\\] | "\\" _)* '"' }
+  ConditionOperator { ';' }
 
-  space { $[ \t\n\r]+ }
+  NewLine { ('\n' | '\r' | '\n\r')+ }
+
+  space { $[ \t]+ }
 }
 
+@skip { space }
 @detectDelim

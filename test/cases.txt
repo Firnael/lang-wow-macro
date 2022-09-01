@@ -1,50 +1,11 @@
-# Functions
+# Lines
 
-/cast
-/use
-
-==>
-
-Program(Function, Function)
-
-# Conditions
-
-[noharm]
-[dead]
+#showtooltip
+/cast [dead] Resurrection; Heal
 
 ==>
 
-Program(Condition, Condition)
-
-# Identifiers
-
-one
-two
-
-==>
-
-Program(Identifier, Identifier)
-
-# Strings
-
-"hello"
-"one\"\\two"
-
-==>
-
-Program(String, String)
-
-# Applications
-
-(begin
-  (when #showtooltip
-    (print (concat "hello" " " "world")))
-  (print "DONE"))
-
-==>
-
-Program(Application(
-  Identifier,
-  Application(Identifier, ShowTooltip, Application(
-    Identifier, Application(Identifier, String, String, String)))
-  Application(Identifier, String)))
+Program(
+  Line(ShowTooltip, NewLine),
+  Line(Function, Condition, Identifier, ConditionOperator, Identifier)
+)
