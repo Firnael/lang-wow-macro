@@ -3,11 +3,13 @@
 #showtooltip
 /cast [dead] Resurrection; Heal
 /use 13
+/cast [harm,mod:ctrl]Holy Fire;[harm]Smite;[mod:ctrl]Heal;Flash Heal
 
 ==>
 
 Program(
   Line(ShowTooltip, NewLine),
-  Line(Function, Condition, Name, ConditionOperator, Name, NewLine),
-  Line(Function, Id),
+  Line(Function, Condition, String, ConditionOperator, String, NewLine),
+  Line(Function, Id, NewLine),
+  Line(Function, Condition, String, ConditionOperator, Condition, String, ConditionOperator, Condition, String, ConditionOperator, String)
 )

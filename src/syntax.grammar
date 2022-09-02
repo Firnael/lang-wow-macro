@@ -1,24 +1,28 @@
 @top Program { Line* }
 
-Line { (ShowTooltip | Function expression*) NewLine?}
+Line { (ShowTooltip | Function expression*) NewLine? }
 
 expression {
   Condition |
   ConditionOperator |
-  Name |
+  String |
   Id
 }
 
 @tokens {
-  ShowTooltip { "#showtooltip" }
+  ShowTooltip { '#showtooltip' }
 
-  Name { @asciiLetter+ }
+  nameAfterSpace { ' ' @asciiLetter+ }
+
+  String { @asciiLetter+ nameAfterSpace* }
 
   Id { @digit+ }
 
   Function { '/' @asciiLowercase+ }
 
-  Condition { '[' '@'? @asciiLowercase+ ']' }
+  Condition { '[' conditionElement+ (',' conditionElement+)* ']' }
+
+  conditionElement { ('@'? @asciiLowercase+ | 'mod:' @asciiLowercase+ ) }
 
   ConditionOperator { ';' }
 
@@ -28,4 +32,8 @@ expression {
 }
 
 @skip { space }
+@skip {} {
+  dontSkipSpacesInStrings { String }
+}
+
 @detectDelim

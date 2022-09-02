@@ -9,7 +9,7 @@ export const WowMacroLanguage = LRLanguage.define({
       styleTags({
         ShowTooltip: t.annotation,
         Function: t.labelName,
-        Name: t.variableName,
+        String: t.variableName,
         Id: t.number,
         Condition: t.keyword,
         ConditionOperator: t.logicOperator,
@@ -30,7 +30,7 @@ export const WowMacroCompletion = WowMacroLanguage.data.of({
     { label: '/use', type: 'labelName' },
     { label: '/target', type: 'labelName' },
     { label: '[focus', type: 'keyword' },
-    { label: '[@', type: 'keyword' }
+    { label: '@focus', type: 'keyword' }
   ])
 })
 
@@ -39,7 +39,7 @@ export const WowMacroHighlightStyle = HighlightStyle.define([
   { tag: t.logicOperator, color: "#ffd000" }, // ';'         => yellow
   { tag: t.annotation, color: "#8fbc8f" },    // ShowTooltip => dark sea green
   { tag: t.labelName, color: "#00bfff" },     // Function    => light blue
-  { tag: t.variableName, color: "#9370db" },  // Name        => purple
+  { tag: t.variableName, color: "#9370db" },  // String      => purple
   { tag: t.keyword, color: "#ff00ff" },       // Condition   => magenta
   { tag: t.number, color: "#ffa500" },        // Id          => orange
 ])
