@@ -5,13 +5,16 @@ Line { (ShowTooltip | Function expression*) NewLine?}
 expression {
   Condition |
   ConditionOperator |
-  Identifier
+  Name |
+  Id
 }
 
 @tokens {
   ShowTooltip { "#showtooltip" }
 
-  Identifier { @asciiLetter+ }
+  Name { @asciiLetter+ }
+
+  Id { @digit+ }
 
   Function { '/' @asciiLowercase+ }
 

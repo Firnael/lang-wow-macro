@@ -2,10 +2,12 @@
 
 #showtooltip
 /cast [dead] Resurrection; Heal
+/use 13
 
 ==>
 
 Program(
   Line(ShowTooltip, NewLine),
-  Line(Function, Condition, Identifier, ConditionOperator, Identifier)
+  Line(Function, Condition, Name, ConditionOperator, Name, NewLine),
+  Line(Function, Id),
 )
