@@ -1,10 +1,10 @@
 import { CompletionContext, Completion, CompletionResult } from "@codemirror/autocomplete"
 
 const commands: Completion[] = [
-    { label: 'cast ', type: 'labelName' },
-    { label: 'use ', type: 'labelName' },
-    { label: 'target ', type: 'labelName' },
-    { label: 'focus ', type: 'labelName' }
+    { label: 'cast ', type: 'labelName', detail: "Cast a spell" },
+    { label: 'use ', type: 'labelName', detail: "Use an item from equipment or inventory" },
+    { label: 'target ', type: 'labelName', detail: "Select a target" },
+    { label: 'focus ', type: 'labelName', detail: "Focus a target" }
 ]
 
 const annotations: Completion[] = [
@@ -29,12 +29,12 @@ const conditions: Completion[] = [
 ]
 
 const targets: Completion[] = [
-    { label: 'cursor', type: 'keyword' },
-    { label: 'mouseover', type: 'keyword' },
-    { label: 'focus', type: 'keyword' },
-    { label: 'player', type: 'keyword' },
-    { label: 'target', type: 'keyword' },
-    { label: 'targettarget', type: 'keyword' }
+    { label: 'cursor', type: 'keyword', detail: "Used with items and spells using a reticule" },
+    { label: 'mouseover', type: 'keyword', detail: "The unit under your mouse cursor" },
+    { label: 'focus', type: 'keyword', detail: "Your focus" },
+    { label: 'player', type: 'keyword', detail: "Yourself" },
+    { label: 'target', type: 'keyword', detail: "Your target" },
+    { label: 'targettarget', type: 'keyword', detail: "The target of your target" }
 ]
 
 export function completions(context: CompletionContext): CompletionResult {
@@ -63,6 +63,10 @@ export function completions(context: CompletionContext): CompletionResult {
     // matches a "@", implying we want to use the "target=" operator
     else if (context.matchBefore(/@/) != null) {
         result.options = targets
+    }
+    // matches a whitespace, there is nothing we can imply, propose nothing
+    else if (context.matchBefore(/\s/) != null) {
+        // ...
     }
     else {
         result.options = new Array().concat(commands, annotations, conditions, targets)
