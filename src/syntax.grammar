@@ -1,6 +1,6 @@
 @top Program { Line* }
 
-Line { (ShowTooltip | Command expression*) NewLine? }
+Line { (ShowIconTooltip | Command expression*) NewLine? }
 
 expression {
   Condition |
@@ -11,7 +11,7 @@ expression {
 }
 
 @tokens {
-  ShowTooltip { '#showtooltip' nameAfterSpace? }
+  ShowIconTooltip { '#' ('show' | 'showtooltip') (' ' String)? }
 
   nameAfterSpace { ' ' @asciiLetter+ }
 
@@ -21,7 +21,7 @@ expression {
 
   Command { '/' @asciiLowercase+ }
 
-  Condition { '[' conditionElement+ (',' conditionElement+)* ']' }
+  Condition { '[' conditionElement+ (',' ' '? conditionElement+)* ']' }
 
   conditionElement {
     ('@' | 'target=')? @asciiLowercase+ @digit? |

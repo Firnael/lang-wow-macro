@@ -1,9 +1,20 @@
+# ShowIconTooltip
+
+#show Ice Nova
+#showtooltip Fireball
+
+==>
+
+Program(
+  Line(ShowIconTooltip, NewLine),
+  Line(ShowIconTooltip)
+)
+
 # Lines
 
-#showtooltip Fireball
-/cast [dead] Resurrection; Heal
 /use 13
-/cast [harm,mod:ctrl]Holy Fire;[harm]Smite;[mod:ctrl]Heal;Flash Heal
+/cast [dead] Resurrection; Heal
+/cast [harm, mod:ctrl]Holy Fire;[harm]Smite;[mod:ctrl]Heal;Flash Heal
 /cast [stance:1/2] Shield Bash; Defensive Stance
 /cast [form:1/2] Swipe; Mangle
 /cast [form:0] !Travel Form
@@ -13,9 +24,8 @@
 ==>
 
 Program(
-  Line(ShowTooltip, NewLine),
-  Line(Command, Condition, String, ConditionOperator, String, NewLine),
   Line(Command, Id, NewLine),
+  Line(Command, Condition, String, ConditionOperator, String, NewLine),
   Line(Command, Condition, String, ConditionOperator, Condition, String, ConditionOperator, Condition, String, ConditionOperator, String, NewLine),
   Line(Command, Condition, String, ConditionOperator, String, NewLine),
   Line(Command, Condition, String, ConditionOperator, String, NewLine),
