@@ -22,5 +22,4 @@ Things you'll need to do (see the [language support example](https://codemirror.
 
  ## WoW macro specifications
 
- - cannot contain comments (either line, block, etc.), thus has no character dedicated to commenting
- - functions start with a `/`
+https://wowwiki-archive.fandom.com/wiki/Making_a_macro#Syntax_overview

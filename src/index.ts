@@ -8,37 +8,32 @@ export const WowMacroLanguage = LRLanguage.define({
     props: [
       styleTags({
         ShowTooltip: t.annotation,
-        Function: t.labelName,
+        Command: t.labelName,
         String: t.variableName,
         Id: t.number,
         Condition: t.keyword,
         ConditionOperator: t.logicOperator,
-        "( )": t.paren,
-        "[ ]": t.bracket,
+        ToggleOperator: t.logicOperator,
       })
     ]
-  }),
-  languageData: {
-    commentTokens: { line: ";" }
-  }
+  })
 })
 
 export const WowMacroCompletion = WowMacroLanguage.data.of({
   autocomplete: completeFromList([
-    { label: '#showtooltip', type: 'annotation' },
-    { label: '/cast', type: 'labelName' },
-    { label: '/use', type: 'labelName' },
-    { label: '/target', type: 'labelName' },
-    { label: '[focus', type: 'keyword' },
-    { label: '@focus', type: 'keyword' }
+    { label: '#showtooltip ', type: 'annotation' },
+    { label: '/cast ', type: 'labelName' },
+    { label: '/use ', type: 'labelName' },
+    { label: '/target ', type: 'labelName' },
+    { label: '[]', type: 'keyword' },
+    { label: '@focus', type: 'keyword' },
   ])
 })
 
 export const WowMacroHighlightStyle = HighlightStyle.define([
-  { tag: t.bracket, color: "#ffd000" },       // Brackets    => yellow
-  { tag: t.logicOperator, color: "#ffd000" }, // ';'         => yellow
+  { tag: t.logicOperator, color: "#ffd000" }, // ';', '!'    => yellow
   { tag: t.annotation, color: "#8fbc8f" },    // ShowTooltip => dark sea green
-  { tag: t.labelName, color: "#00bfff" },     // Function    => light blue
+  { tag: t.labelName, color: "#00bfff" },     // Command     => light blue
   { tag: t.variableName, color: "#9370db" },  // String      => purple
   { tag: t.keyword, color: "#ff00ff" },       // Condition   => magenta
   { tag: t.number, color: "#ffa500" },        // Id          => orange

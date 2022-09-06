@@ -1,16 +1,17 @@
 @top Program { Line* }
 
-Line { (ShowTooltip | Function expression*) NewLine? }
+Line { (ShowTooltip | Command expression*) NewLine? }
 
 expression {
   Condition |
   ConditionOperator |
+  ToggleOperator |
   String |
   Id
 }
 
 @tokens {
-  ShowTooltip { '#showtooltip' }
+  ShowTooltip { '#showtooltip' nameAfterSpace? }
 
   nameAfterSpace { ' ' @asciiLetter+ }
 
@@ -18,13 +19,15 @@ expression {
 
   Id { @digit+ }
 
-  Function { '/' @asciiLowercase+ }
+  Command { '/' @asciiLowercase+ }
 
   Condition { '[' conditionElement+ (',' conditionElement+)* ']' }
 
-  conditionElement { ('@'? @asciiLowercase+ | 'mod:' @asciiLowercase+ ) }
+  conditionElement { ('@'? @asciiLowercase+ | 'mod:' @asciiLowercase+ | ('stance:' | 'form:') @digit '/' @digit ) }
 
   ConditionOperator { ';' }
+
+  ToggleOperator { '!' }
 
   NewLine { ('\n' | '\r' | '\n\r')+ }
 
