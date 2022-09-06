@@ -1,20 +1,20 @@
 import { CompletionContext, Completion, CompletionResult } from "@codemirror/autocomplete"
 
 const commands: Completion[] = [
-    { label: 'cast ', type: 'labelName', detail: "Cast a spell" },
-    { label: 'use ', type: 'labelName', detail: "Use an item from equipment or inventory" },
-    { label: 'target ', type: 'labelName', detail: "Select a target" },
-    { label: 'focus ', type: 'labelName', detail: "Focus a target" }
+    { label: '/cast ', type: 'labelName', detail: "Cast a spell" },
+    { label: '/use ', type: 'labelName', detail: "Use an item from equipment or inventory" },
+    { label: '/target ', type: 'labelName', detail: "Select a target" },
+    { label: '/focus ', type: 'labelName', detail: "Focus a target" }
 ]
 
 const annotations: Completion[] = [
     {
-        label: 'showtooltip ', type: 'annotation',
+        label: '#showtooltip ', type: 'annotation',
         detail: "Display the ability/item icon & tooltip",
         info: "If you selected the '?' icon, you can use this annotation to display an icon relative to your macro"
     },
     {
-        label: 'show ', type: 'annotation',
+        label: '#show ', type: 'annotation',
         detail: "Display the ability/item icon"
     }
 ]
@@ -29,16 +29,16 @@ const conditions: Completion[] = [
 ]
 
 const targets: Completion[] = [
-    { label: 'cursor', type: 'keyword', detail: "Used with items and spells using a reticule" },
-    { label: 'mouseover', type: 'keyword', detail: "The unit under your mouse cursor" },
-    { label: 'focus', type: 'keyword', detail: "Your focus" },
-    { label: 'player', type: 'keyword', detail: "Yourself" },
-    { label: 'target', type: 'keyword', detail: "Your target" },
-    { label: 'targettarget', type: 'keyword', detail: "The target of your target" }
+    { label: '@cursor', type: 'keyword', detail: "Used with items and spells using a reticule" },
+    { label: '@mouseover', type: 'keyword', detail: "The unit under your mouse cursor" },
+    { label: '@focus', type: 'keyword', detail: "Your focus" },
+    { label: '@player', type: 'keyword', detail: "Yourself" },
+    { label: '@target', type: 'keyword', detail: "Your target" },
+    { label: '@targettarget', type: 'keyword', detail: "The target of your target" }
 ]
 
 export function completions(context: CompletionContext): CompletionResult {
-    let word = context.matchBefore(/\w*/)
+    let word = context.matchBefore(/\S*/)
     if (word == null || (word.from == word.to && !context.explicit)) {
         return { from: 0, options: [] }
     }
@@ -64,13 +64,9 @@ export function completions(context: CompletionContext): CompletionResult {
     else if (context.matchBefore(/@/) != null) {
         result.options = targets
     }
-    // matches a whitespace, there is nothing we can imply, propose nothing
-    else if (context.matchBefore(/\s/) != null) {
-        // ...
-    }
-    else {
-        result.options = new Array().concat(commands, annotations, conditions, targets)
-    }
+    // else {
+    //     result.options = new Array().concat(commands, annotations, conditions, targets)
+    // }
 
     return result
 }
