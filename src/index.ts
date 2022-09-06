@@ -1,6 +1,6 @@
 import { parser } from "./syntax.grammar"
 import { LRLanguage, LanguageSupport, HighlightStyle } from "@codemirror/language"
-import { completeFromList } from "@codemirror/autocomplete"
+import { CompletionContext, completeFromList, CompletionResult } from "@codemirror/autocomplete"
 import { styleTags, tags as t } from "@lezer/highlight"
 
 export const WowMacroLanguage = LRLanguage.define({
@@ -19,15 +19,28 @@ export const WowMacroLanguage = LRLanguage.define({
   })
 })
 
+function myCompletions(context: CompletionContext): CompletionResult {
+  let word = context.matchBefore(/\w*/)
+  if (word == null || (word.from == word.to && !context.explicit)) {
+    return {
+      from: 0,
+      options: []
+    }
+  }
+  return {
+    from: word.from,
+    options: [
+      { label: '#showtooltip ', type: 'annotation' },
+      { label: '/cast ', type: 'labelName' },
+      { label: '/use ', type: 'labelName' },
+      { label: '/target ', type: 'labelName' },
+      { label: '@focus', type: 'keyword' },
+    ]
+  }
+}
+
 export const WowMacroCompletion = WowMacroLanguage.data.of({
-  autocomplete: completeFromList([
-    { label: '#showtooltip ', type: 'annotation' },
-    { label: '/cast ', type: 'labelName' },
-    { label: '/use ', type: 'labelName' },
-    { label: '/target ', type: 'labelName' },
-    { label: '[]', type: 'keyword' },
-    { label: '@focus', type: 'keyword' },
-  ])
+  autocomplete: myCompletions
 })
 
 export const WowMacroHighlightStyle = HighlightStyle.define([

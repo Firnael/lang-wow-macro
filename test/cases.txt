@@ -6,7 +6,9 @@
 /cast [harm,mod:ctrl]Holy Fire;[harm]Smite;[mod:ctrl]Heal;Flash Heal
 /cast [stance:1/2] Shield Bash; Defensive Stance
 /cast [form:1/2] Swipe; Mangle
-/cast !Travel Form
+/cast [form:0] !Travel Form
+/cast [@focus] Taunt
+/cast [target=party1] Rejuvenation
 
 ==>
 
@@ -17,5 +19,7 @@ Program(
   Line(Command, Condition, String, ConditionOperator, Condition, String, ConditionOperator, Condition, String, ConditionOperator, String, NewLine),
   Line(Command, Condition, String, ConditionOperator, String, NewLine),
   Line(Command, Condition, String, ConditionOperator, String, NewLine),
-  Line(Command, ToggleOperator, String)
+  Line(Command, Condition, ToggleOperator, String, NewLine),
+  Line(Command, Condition, String, NewLine),
+  Line(Command, Condition, String)
 )
