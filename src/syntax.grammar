@@ -23,7 +23,11 @@ expression {
 
   Condition { '[' conditionElement+ (',' conditionElement+)* ']' }
 
-  conditionElement { ('@' | 'target=')? @asciiLowercase+ @digit? | 'mod:' @asciiLowercase+ | ('stance:' | 'form:') @digit ('/' @digit)* }
+  conditionElement {
+    ('@' | 'target=')? @asciiLowercase+ @digit? |
+    ('mod' | 'modifier') ':' ('shift' | 'ctrl' | 'alt') |
+    ('stance' | 'form') ':' @digit ('/' @digit)*
+  }
 
   ConditionOperator { ';' }
 

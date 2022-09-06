@@ -23,3 +23,15 @@ Program(
   Line(Command, Condition, String, NewLine),
   Line(Command, Condition, String)
 )
+
+# Modifiers
+
+/cast [mod:shift] Dispel Magic; [modifier:alt] Purify
+/cast [mod:ctrl] Resurrection; Mass Resurrection
+
+==>
+
+Program(
+  Line(Command, Condition, String, ConditionOperator, Condition, String, NewLine),
+  Line(Command, Condition, String, ConditionOperator, String)
+)
