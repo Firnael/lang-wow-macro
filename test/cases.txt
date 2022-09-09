@@ -1,4 +1,4 @@
-# ShowIconTooltip
+# Annotations #show and #showtooltip
 
 #show Ice Nova
 #showtooltip Fireball
@@ -10,31 +10,69 @@ Program(
   Line(ShowIconTooltip)
 )
 
-# Lines
+# Ids
 
 /use 13
-/cast [dead] Resurrection; Heal
-/cast [harm, mod:ctrl]Holy Fire;[harm]Smite;[mod:ctrl]Heal;Flash Heal
-/cast [stance:1/2] Shield Bash; Defensive Stance
-/cast [form:1/2] Swipe; Mangle
-/cast [form:0] !Travel Form
-/cast [@focus] Taunt
-/cast [target=party1] Rejuvenation
 
 ==>
 
 Program(
-  Line(Command, Id, NewLine),
-  Line(Command, Condition, String, ConditionOperator, String, NewLine),
-  Line(Command, Condition, String, ConditionOperator, Condition, String, ConditionOperator, Condition, String, ConditionOperator, String, NewLine),
-  Line(Command, Condition, String, ConditionOperator, String, NewLine),
-  Line(Command, Condition, String, ConditionOperator, String, NewLine),
-  Line(Command, Condition, ToggleOperator, String, NewLine),
+  Line(Command, Id)
+)
+
+# Toggle Operator '!'
+
+/cast !Travel Form
+
+==>
+
+Program(
+  Line(Command, ToggleOperator, String)
+)
+
+# Conditions : Target elements
+
+/cast [target=party1] Heal; [target=partypet1] Mend pet; Greater Heal
+/cast [@raid15] Heal; [@raidpet15] Mend pet; Greater Heal
+/cast [@arena2] Heal; [@arenapet2] Mend pet; Greater Heal
+/cast [@focus] Heal
+/cast [@mouseover] Heal
+/cast [@none] Heal
+/cast [@pet] Heal
+/cast [@player] Heal
+/cast [@target] Heal
+/cast [@vehicle] Heal
+/cast [target=targettargettargettarget] Wait what
+
+==>
+
+Program(
+  Line(Command, Condition, String, ConditionOperator, Condition, String, ConditionOperator, String, NewLine),
+  Line(Command, Condition, String, ConditionOperator, Condition, String, ConditionOperator, String, NewLine),
+  Line(Command, Condition, String, ConditionOperator, Condition, String, ConditionOperator, String, NewLine),
+  Line(Command, Condition, String, NewLine),
+  Line(Command, Condition, String, NewLine),
+  Line(Command, Condition, String, NewLine),
+  Line(Command, Condition, String, NewLine),
+  Line(Command, Condition, String, NewLine),
+  Line(Command, Condition, String, NewLine),
   Line(Command, Condition, String, NewLine),
   Line(Command, Condition, String)
 )
 
-# Modifiers
+# Conditions : Status
+
+/cast [dead] Resurrection; Heal
+/cast [help] Holy Fire; [harm] Smite
+
+==>
+
+Program(
+  Line(Command, Condition, String, ConditionOperator, String, NewLine),
+  Line(Command, Condition, String, ConditionOperator, Condition, String)
+)
+
+# Conditions : Modifiers
 
 /cast [mod:shift] Dispel Magic; [modifier:alt] Purify
 /cast [mod:ctrl] Resurrection; Mass Resurrection
@@ -43,5 +81,17 @@ Program(
 
 Program(
   Line(Command, Condition, String, ConditionOperator, Condition, String, NewLine),
+  Line(Command, Condition, String, ConditionOperator, String)
+)
+
+# Conditions : Stances & forms
+
+/cast [stance:1/2] Shield Bash; Defensive Stance
+/cast [form:1] Swipe; Mangle
+
+==>
+
+Program(
+  Line(Command, Condition, String, ConditionOperator, String, NewLine),
   Line(Command, Condition, String, ConditionOperator, String)
 )

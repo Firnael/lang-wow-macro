@@ -1,6 +1,8 @@
 @top Program { Line* }
 
-Line { (ShowIconTooltip | Command expression*) NewLine? }
+Line {
+  (ShowIconTooltip | Command expression*) NewLine?
+}
 
 expression {
   Condition |
@@ -19,14 +21,33 @@ expression {
 
   Id { @digit+ }
 
-  Command { '/' @asciiLowercase+ }
+  Command { '/' commandName }
+
+  commandName {
+    'cast' | 'use' | 'target' | 'focus' | 'stopcasting' | 'assist' | 'cleartarget'
+  }
 
   Condition { '[' conditionElement+ (',' ' '? conditionElement+)* ']' }
 
   conditionElement {
-    ('@' | 'target=')? @asciiLowercase+ @digit? |
+    conditionStatus |
+    ('@' | 'target=') targetElement |
     ('mod' | 'modifier') ':' ('shift' | 'ctrl' | 'alt') |
     ('stance' | 'form') ':' @digit ('/' @digit)*
+  }
+
+  conditionStatus {
+    'harm' | 'help' | 'dead' | 'indoors' | 'outdoors' | 'exists'
+  }
+
+  targetElement {
+    (
+      ('party' 'pet'? @digit) |
+      ('raid' 'pet'? @digit @digit?) |
+      ('arena' 'pet'? @digit) |
+      ('boss' @digit) |
+      'focus' | 'mouseover' | 'none' | 'pet' | 'player' | 'target' | 'vehicle'
+    ) 'target'*
   }
 
   ConditionOperator { ';' }
