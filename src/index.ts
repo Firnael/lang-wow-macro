@@ -1,7 +1,7 @@
 import { parser } from "./syntax.grammar"
 import { LRLanguage, LanguageSupport, HighlightStyle } from "@codemirror/language"
 import { styleTags, tags as t } from "@lezer/highlight"
-import { completions } from './completion'
+import { completions, findCompletion } from './completion'
 
 export const WowMacroLanguage = LRLanguage.define({
   parser: parser.configure({
@@ -35,3 +35,6 @@ export const WowMacroHighlightStyle = HighlightStyle.define([
 export function WowMacro() {
   return new LanguageSupport(WowMacroLanguage, [WowMacroCompletion])
 }
+
+// exported for tests
+export const CompletionFunction = findCompletion

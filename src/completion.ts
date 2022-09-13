@@ -1,20 +1,20 @@
 import { CompletionContext, Completion, CompletionResult } from "@codemirror/autocomplete"
 
 const commands: Completion[] = [
-    { label: '/cast ', type: 'labelName', detail: "Cast a spell" },
-    { label: '/use ', type: 'labelName', detail: "Use an item from equipment or inventory" },
-    { label: '/target ', type: 'labelName', detail: "Target the specified unit" },
-    { label: '/focus ', type: 'labelName', detail: "Focus a target" },
+    { label: '/cast ', type: 'labelName', detail: "Cast a spell", boost: 100 },
     { label: '/stopcasting ', type: 'labelName', detail: "Cancel any cast currently happening" },
-    { label: '/assist ', type: 'labelName', detail: "Targets your target's target :)" },
-    { label: '/cleartarget ', type: 'labelName', detail: "Leaves you with no target" }
+    { label: '/use ', type: 'labelName', detail: "Use an item from equipment or inventory", boost: 99 },
+    { label: '/target ', type: 'labelName', detail: "Target the specified unit" },
+    { label: '/cleartarget ', type: 'labelName', detail: "Leaves you with no target" },
+    { label: '/focus ', type: 'labelName', detail: "Focus a target" },
+    { label: '/assist ', type: 'labelName', detail: "Targets your target's target :)" }
 ]
 
 const annotations: Completion[] = [
     {
         label: '#showtooltip ', type: 'annotation',
         detail: "Display the ability/item icon & tooltip",
-        info: "If you selected the '?' icon, you can use this annotation to display an icon relative to your macro"
+        info: "If you selected the '?' icon, you can use this annotation to display an icon and a tooltip relative to your macro"
     },
     {
         label: '#show ', type: 'annotation',
@@ -23,14 +23,18 @@ const annotations: Completion[] = [
 ]
 
 const conditions: Completion[] = [
-    { label: '@', type: 'keyword', detail: "Target operator (short for 'target=')" },
-    { label: 'target=', type: 'keyword', detail: "Target operator" },
+    // { label: '@', type: 'keyword', detail: "Target operator (short for 'target=')" },
+    { label: 'target=', type: 'keyword', detail: "Target operator", info: "The symbol '@' is a shortcut for this", apply: "@" },
     { label: 'dead', type: 'keyword', detail: "Target is dead" },
     { label: 'harm', type: 'keyword', detail: "Target can be harmed" },
     { label: 'help', type: 'keyword', detail: "Target can be helped" },
     { label: 'indoors', type: 'keyword', detail: "You are indoors" },
     { label: 'outdoors', type: 'keyword', detail: "You are outdoors" },
-    { label: 'exists', type: 'keyword', detail: "You have a target right now" }
+    { label: 'exists', type: 'keyword', detail: "You have a target right now" },
+    { label: 'stance:', type: 'keyword', detail: "You are in a specific stance" },
+    { label: 'form:', type: 'keyword', detail: "You are in a specific form" },
+    { label: 'spec:', type: 'keyword', detail: "You are in a specific spec" },
+    { label: 'talent:', type: 'keyword', detail: "You are using a specific talent" }
 ]//.flatMap(i => [{ ...i, label: `[${i.label}` }, { ...i, label: `,${i.label}` }, { ...i, label: `, ${i.label}` }])
 
 const targets: Completion[] = [
@@ -54,43 +58,45 @@ export function completions(context: CompletionContext): CompletionResult {
         return result
     }
 
+    return findCompletion(word)
+}
+
+export function findCompletion(word: Word): CompletionResult {
+
     // matches a slash "/", implying we want to use a command
     if (getFirstCharacterOfWord(word) == '/') {
-        result.from = word.from
-        result.options = commands
+        return { from: word.from, options: commands }
     }
     // matches a "#", implying we want to use the "show*" directives
     if (getFirstCharacterOfWord(word) == '#') {
-        result.from = word.from
-        result.options = annotations
+        return { from: word.from, options: annotations }
     }
-    // matches either a "[" or a "," (with or without a trailing whitespace), implying we want to use a conditional
-    if (getFirstCharacterOfWord(word) == '[') {
-        result.from = word.from + 1
-        result.options = conditions
-    }
-    else if(word.text.indexOf(',') >= 0 || word.text.indexOf(', ') >= 0) {
-        let index = word.text.lastIndexOf(', ') // attention au +2 ici ?
-        if(index < 0) {
-            index = word.text.lastIndexOf(',')
+    // matches a word containing a "," (with or without a trailing whitespace)
+    if (word.text.indexOf(',') >= 0 || word.text.indexOf(', ') >= 0) {
+        // get the last "," index (with an offset if a space follows it)
+        let index = word.text.lastIndexOf(',')
+        let offset = 1
+        if (word.text[index + 1] === ' ') {
+            offset = 2
         }
-        result.from = word.from + index + 1
-        result.options = conditions
+        return {
+            from: word.from + index + offset,
+            options: conditions
+        }
     }
-
     // matches a "@" or "target=", implying we want to use the "target" conditional operator
-    //else if (getFirstCharacterOfWord(word) == '@' || wordContains(word, '[@') || wordContains(word, ',@') || wordContains(word, ', @')) {
-    if (wordMatches(word, new RegExp(/^(@|\[@|,@|, @)/))) {
+    //if (wordMatches(word, new RegExp(/^(@|\[@|,@|, @)/))) {
+    if (wordContains(word, '@')) {
         const index = word.text.lastIndexOf('@')
-        result.from = word.from + index
-        result.options = targets
+        return { from: word.from + index, options: targets }
+    }
+    // matches a word starting with "[" and containing no "," implying we want to use a first conditional
+    if (getFirstCharacterOfWord(word) == '[' && word.text.indexOf(',') < 0) {
+        return { from: word.from + 1, options: conditions }
     }
 
-    // en vrai le "from" il faut que ça soit à partir du dernier caractère qui nous intéresse
-    // en gros si on a le word "[@cursor,nodead" et qu'on ajoute une ',' le from doit commencer à la dernière ','
-    // donc un word.text.lastIndexOf(',')
-
-    return result
+    // no match found
+    return { from: word.from, options: [] }
 }
 
 function getFirstCharacterOfWord(word: Word | null): string {
@@ -98,18 +104,18 @@ function getFirstCharacterOfWord(word: Word | null): string {
 }
 
 function getLastCharacterOfWord(word: Word | null): string {
-    return word ? word.text.substring(word.text.length-2, word.text.length-1) : ''
+    return word ? word.text.substring(word.text.length - 2, word.text.length - 1) : ''
 }
 
 function wordContains(word: Word | null, content: string): boolean {
-    return word ? (word.text.indexOf(content) >=0 ? true : false) : false
+    return word ? (word.text.indexOf(content) >= 0 ? true : false) : false
 }
 
 function wordMatches(word: Word | null, match: RegExp): boolean {
     return word ? match.test(word.text) : false
 }
 
-interface Word {
+export interface Word {
     from: number;
     to: number;
     text: string;
