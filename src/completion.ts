@@ -61,6 +61,7 @@ export function completions(context: CompletionContext): CompletionResult {
     return findCompletion(word)
 }
 
+// TODO : "[] action par défaut"
 export function findCompletion(word: Word): CompletionResult {
 
     // matches a slash "/", implying we want to use a command
@@ -71,21 +72,30 @@ export function findCompletion(word: Word): CompletionResult {
     if (getFirstCharacterOfWord(word) == '#') {
         return { from: word.from, options: annotations }
     }
-    // matches a word containing a "," (with or without a trailing whitespace)
-    if (word.text.indexOf(',') >= 0 || word.text.indexOf(', ') >= 0) {
-        // get the last "," index (with an offset if a space follows it)
+    // matches a word containing a ","
+    if (wordContains(word, ',')) {
+        // get the last ',' index 
         let index = word.text.lastIndexOf(',')
-        let offset = 1
-        if (word.text[index + 1] === ' ') {
-            offset = 2
-        }
-        return {
-            from: word.from + index + offset,
-            options: conditions
+
+        // verify comma is not followed by '@'
+        const arobaseIndex = word.text.lastIndexOf('@')
+        const spaceWithArobaseIndex = word.text.lastIndexOf(' @')
+
+        if ((arobaseIndex < 0 && spaceWithArobaseIndex < 0)
+            || (arobaseIndex > 0 && index > arobaseIndex)
+                || (spaceWithArobaseIndex > 0 && index > spaceWithArobaseIndex)) {
+            // the last ',' is AFTER the last '@' so we can continue
+            let offset = 1 // offset changes if a space follow directly
+            if (word.text[index + 1] === ' ') {
+                offset = 2
+            }
+            return {
+                from: word.from + index + offset,
+                options: conditions
+            }
         }
     }
     // matches a "@" or "target=", implying we want to use the "target" conditional operator
-    //if (wordMatches(word, new RegExp(/^(@|\[@|,@|, @)/))) {
     if (wordContains(word, '@')) {
         const index = word.text.lastIndexOf('@')
         return { from: word.from + index, options: targets }
