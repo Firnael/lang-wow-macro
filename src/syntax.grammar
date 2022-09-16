@@ -24,20 +24,28 @@ expression {
   Command { '/' commandName }
 
   commandName {
-    'cast' | 'use' | 'target' | 'focus' | 'stopcasting' | 'assist' | 'cleartarget'
+    'cast' | 'use' | 'target' | 'focus' | 'stopcasting' | 'assist' | 'cleartarget' | 'targetlasttarget' | 'dismount' |
+    'equip' | 'equipset' | 'equipslot' | 'follow' | 'leavevehicule' | 'randompet' | 'afk'
   }
 
-  Condition { '[' conditionElement+ (',' ' '? conditionElement+)* ']' }
+  Condition { '[' (conditionElement+ (',' ' '? conditionElement+)*)? ']' }
 
   conditionElement {
-    conditionStatus |
+    ( 'no' ? conditionStatus) |
     ('@' | 'target=') targetElement |
     ('mod' | 'modifier') ':' ('shift' | 'ctrl' | 'alt') |
-    ('stance' | 'form') ':' @digit ('/' @digit)*
+    ('stance' | 'form' | 'spec') ':' @digit ('/' @digit)* |
+    'talent:' @digit '/' @digit |
+    ('equipped' | 'worn') ':' @asciiLetter+ |
+    'group' (':' ('party' | 'raid'))? |
+    'pet:' String |
+    ('channeling:' @asciiLetter+) |
+    'button:' @digit
   }
 
   conditionStatus {
-    'harm' | 'help' | 'dead' | 'indoors' | 'outdoors' | 'exists'
+    'harm' | 'help' | 'dead' | 'indoors' | 'outdoors' | 'flyable' | 'flying' | 'exists' | 'stealth' | 'form' | 'mod' |
+    'channeling' | 'combat' | 'pvpcombat' | 'canexitvehicle' | 'mounted' | 'petbattle' | 'resting' | 'swimming'
   }
 
   targetElement {
@@ -46,7 +54,7 @@ expression {
       ('raid' 'pet'? @digit @digit?) |
       ('arena' 'pet'? @digit) |
       ('boss' @digit) |
-      'focus' | 'mouseover' | 'none' | 'pet' | 'player' | 'target' | 'vehicle'
+      'focus' | 'mouseover' | 'cursor' | 'none' | 'pet' | 'player' | 'target' | 'vehicle'
     ) 'target'*
   }
 

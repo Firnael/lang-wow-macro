@@ -1,4 +1,4 @@
-# Annotations #show and #showtooltip
+# Annotations
 
 #show Ice Nova
 #showtooltip Fireball
@@ -64,11 +64,13 @@ Program(
 
 /cast [dead] Resurrection; Heal
 /cast [help] Holy Fire; [harm] Smite
+/cast [noharm] Heal; [nodead] Smite
 
 ==>
 
 Program(
   Line(Command, Condition, String, ConditionOperator, String, NewLine),
+  Line(Command, Condition, String, ConditionOperator, Condition, String, NewLine),
   Line(Command, Condition, String, ConditionOperator, Condition, String)
 )
 
@@ -94,4 +96,14 @@ Program(
 Program(
   Line(Command, Condition, String, ConditionOperator, String, NewLine),
   Line(Command, Condition, String, ConditionOperator, String)
+)
+
+# Conditions : Default
+
+/cast [@cursor][] Shield Bash; [@focus] Defensive Stance
+
+==>
+
+Program(
+  Line(Command, Condition, Condition, String, ConditionOperator, Condition, String)
 )
