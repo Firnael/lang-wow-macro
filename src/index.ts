@@ -14,6 +14,8 @@ export const WowMacroLanguage = LRLanguage.define({
         Condition: t.keyword,
         ConditionOperator: t.logicOperator,
         ToggleOperator: t.logicOperator,
+        "⚠": t.invalid,
+        Error: t.invalid,
       })
     ]
   })
@@ -24,12 +26,13 @@ export const WowMacroCompletion = WowMacroLanguage.data.of({
 })
 
 export const WowMacroHighlightStyle = HighlightStyle.define([
-  { tag: t.logicOperator, color: "#ffd000" }, // ';' '!'     => yellow
-  { tag: t.annotation, color: "#8fbc8f" },    // ShowIconTooltip => dark sea green
-  { tag: t.labelName, color: "#00bfff" },     // Command     => light blue
-  { tag: t.variableName, color: "#9370db" },  // String      => purple
-  { tag: t.keyword, color: "#ff00ff" },       // Condition   => magenta
-  { tag: t.number, color: "#ffa500" },        // Id          => orange
+  { tag: t.logicOperator, color: "#ffd000" },                   // ';' '!'     => yellow
+  { tag: t.annotation, color: "#8fbc8f" },                      // ShowIconTooltip => dark sea green
+  { tag: t.labelName, color: "#00bfff" },                       // Command     => light blue
+  { tag: t.variableName, color: "#9370db", fontStyle: "bold" }, // String      => purple
+  { tag: t.keyword, color: "#ff00ff" },                         // Condition   => magenta
+  { tag: t.number, color: "#ffa500",  },                        // Id          => orange
+  { tag: t.invalid, color: "#8B0000", fontStyle: "italic" },    // Error => red italic
 ])
 
 export function WowMacro() {

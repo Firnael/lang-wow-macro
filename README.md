@@ -23,3 +23,36 @@ Things you'll need to do (see the [language support example](https://codemirror.
  ## WoW macro specifications
 
 https://wowwiki-archive.fandom.com/wiki/Making_a_macro#Syntax_overview
+
+## Testing
+
+This stuff is cryptic so you should write tests for it.
+
+### Testing the completion code
+
+You updated the completion logic (by updating the `src/completion.ts` file) and you want to test it.
+Add a test in the `test/completion.ts` file and run the following command:
+
+```bash
+npm run test
+```
+
+### Testing the grammar
+
+You updated the grammar (by updating the `syntax.grammar` file) and you want to test it.  
+Add a case in the `test/cases.txt` file with this syntax :
+
+```
+# This is a comment for your case
+/cast Fireball
+==>
+Program(
+  Line(Command, String)
+)
+```
+
+and run the following command:
+
+```bash
+npm run test:grammar
+```

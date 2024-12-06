@@ -2,8 +2,8 @@ import { CompletionContext, Completion, CompletionResult } from "@codemirror/aut
 
 const commands: Completion[] = [
     { label: '/cast ', type: 'labelName', detail: "Cast a spell", boost: 100 },
-    { label: '/stopcasting ', type: 'labelName', detail: "Cancel any cast currently happening" },
     { label: '/use ', type: 'labelName', detail: "Use an item from equipment or inventory", boost: 99 },
+    { label: '/stopcasting ', type: 'labelName', detail: "Cancel any cast currently happening" },
     { label: '/target ', type: 'labelName', detail: "Target the specified unit" },
     { label: '/cleartarget ', type: 'labelName', detail: "Leaves you with no target" },
     { label: '/focus ', type: 'labelName', detail: "Focus a target" },
@@ -75,7 +75,7 @@ export function findCompletion(word: Word): CompletionResult {
     // matches a word containing a ","
     if (wordContains(word, ',')) {
         // get the last ',' index 
-        let index = word.text.lastIndexOf(',')
+        const index = word.text.lastIndexOf(',')
 
         // verify comma is not followed by '@'
         const arobaseIndex = word.text.lastIndexOf('@')
