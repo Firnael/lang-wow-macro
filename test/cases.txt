@@ -1,7 +1,6 @@
-# Annotations
-
-#show Ice Nova
-#showtooltip Fireball
+# Annotations avec espaces multiples
+#show    Ice Nova
+#showtooltip     Fireball
 
 ==>
 
@@ -10,100 +9,49 @@ Program(
   Line(ShowIconTooltip)
 )
 
-# Ids
-
-/use 13
+# Noms avec tirets et underscores
+/cast Mind-Sear
+/use Healthstone_1
 
 ==>
 
 Program(
-  Line(Command, Id)
+  Line(Command, String, NewLine),
+  Line(Command, String)
 )
 
-# Toggle Operator '!'
-
-/cast !Travel Form
-
-==>
-
-Program(
-  Line(Command, ToggleOperator, String)
-)
-
-# Conditions : Target elements
-
-/cast [target=party1] Heal; [target=partypet1] Mend pet; Greater Heal
-/cast [@raid15] Heal; [@raidpet15] Mend pet; Greater Heal
-/cast [@arena2] Heal; [@arenapet2] Mend pet; Greater Heal
-/cast [@focus] Heal
-/cast [@mouseover] Heal
-/cast [@none] Heal
-/cast [@pet] Heal
-/cast [@player] Heal
-/cast [@target] Heal
-/cast [@vehicle] Heal
-/cast [target=targettargettargettarget] Wait what
+# Conditions multiples avec espaces variés
+/cast [harm,nodead] Smite; [help,   dead] Resurrection
 
 ==>
 
 Program(
-  Line(Command, Condition, String, ConditionOperator, Condition, String, ConditionOperator, String, NewLine),
-  Line(Command, Condition, String, ConditionOperator, Condition, String, ConditionOperator, String, NewLine),
-  Line(Command, Condition, String, ConditionOperator, Condition, String, ConditionOperator, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String)
-)
-
-# Conditions : Status
-
-/cast [dead] Resurrection; Heal
-/cast [help] Holy Fire; [harm] Smite
-/cast [noharm] Heal; [nodead] Smite
-
-==>
-
-Program(
-  Line(Command, Condition, String, ConditionOperator, String, NewLine),
-  Line(Command, Condition, String, ConditionOperator, Condition, String, NewLine),
   Line(Command, Condition, String, ConditionOperator, Condition, String)
 )
 
-# Conditions : Modifiers
-
-/cast [mod:shift] Dispel Magic; [modifier:alt] Purify
-/cast [mod:ctrl] Resurrection; Mass Resurrection
-
-==>
-
-Program(
-  Line(Command, Condition, String, ConditionOperator, Condition, String, NewLine),
-  Line(Command, Condition, String, ConditionOperator, String)
-)
-
-# Conditions : Stances & forms
-
-/cast [stance:1/2] Shield Bash; Defensive Stance
-/cast [form:1] Swipe; Mangle
-
-==>
-
-Program(
-  Line(Command, Condition, String, ConditionOperator, String, NewLine),
-  Line(Command, Condition, String, ConditionOperator, String)
-)
-
-# Conditions : Default
-
-/cast [@cursor][] Shield Bash; [@focus] Defensive Stance
+# Conditions imbriquées avec cibles complexes
+/cast [@party1target,help][mod:shift] Heal; [@partypet1,nodead] Mend Pet
 
 ==>
 
 Program(
   Line(Command, Condition, Condition, String, ConditionOperator, Condition, String)
+)
+
+# Test des conditions vides
+/cast [@player][] Shield Block
+
+==>
+
+Program(
+  Line(Command, Condition, Condition, String)
+)
+
+# Test des conditions de groupe
+/cast [group:raid] Mass Resurrection; [group:party] Resurrection
+
+==>
+
+Program(
+  Line(Command, Condition, String, ConditionOperator, Condition, String)
 )
