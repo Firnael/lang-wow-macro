@@ -1,75 +1,229 @@
+// Programme principal : une suite de lignes
 @top Program { Line* }
 
+// Une ligne peut être soit une annotation (#show/#showtooltip), soit une commande avec des expressions
 Line {
   (ShowIconTooltip | Command expression*) NewLine?
 }
 
+// Les expressions possibles dans une ligne de macro
 expression {
-  Condition |
-  ConditionOperator |
-  ToggleOperator |
-  String |
-  Id
+  Condition |      // Conditions entre crochets [...]
+  ConditionOperator | // Opérateur de séparation entre conditions (;)
+  ToggleOperator |   // Opérateur de bascule (!)
+  String |           // Chaîne de caractères (noms de sorts, etc.)
+  Id                 // Identifiant numérique
 }
 
 @tokens {
-  ShowIconTooltip { '#' ('show' | 'showtooltip') (' ' String)? }
+  // Annotations pour l'icône de la macro
+  ShowIconTooltip { '#' ('show' | 'showtooltip') $[ ]* String? }
 
-  nameAfterSpace { ' ' @asciiLetter+ }
+  // Gestion des espaces dans les noms (ex: "Heal Over Time")
+  nameAfterSpace { $[ ]+ @asciiLetter+ }
+  
+  // Chaînes de caractères avec support des tirets et underscores
+  String { (@asciiLetter | '-' | '_')+ nameAfterSpace* }
 
-  String { @asciiLetter+ nameAfterSpace* }
-
+  // Identifiants numériques (ex: /use 13)
   Id { @digit+ }
 
+  // Commandes WoW commençant par '/'
   Command { '/' commandName }
 
+  // Liste des commandes supportées
   commandName {
     'cast' | 'use' | 'target' | 'focus' | 'stopcasting' | 'assist' | 'cleartarget' | 'targetlasttarget' | 'dismount' |
-    'equip' | 'equipset' | 'equipslot' | 'follow' | 'leavevehicule' | 'randompet' | 'afk'
+    'equip' | 'equipset' | 'equipslot' | 'follow' | 'leavevehicule' | 'randompet' | 'afk' | 'startattack' | 'stopattack' |
+    'petattack' | 'petfollow' | 'petstay'
   }
 
-  Condition { '[' (conditionElement+ (',' ' '? conditionElement+)*)? ']' }
+  // Structure des conditions entre crochets
+  Condition { '[' conditionList? ']' }
+  conditionList { conditionElement (',' $[ ]* conditionElement)* }
 
+  // Types de conditions possibles
   conditionElement {
-    ( 'no' ? conditionStatus) |
-    ('@' | 'target=') targetElement |
-    ('mod' | 'modifier') ':' ('shift' | 'ctrl' | 'alt') |
-    ('stance' | 'form' | 'spec') ':' @digit ('/' @digit)* |
-    'talent:' @digit '/' @digit |
-    ('equipped' | 'worn') ':' @asciiLetter+ |
+    negatedCondition |      // Conditions avec 'no' préfixé
+    targetCondition |       // Conditions de ciblage (@target)
+    modifierCondition |     // Modificateurs (shift, alt, ctrl)
+    stanceCondition |       // Postures et formes
+    equipmentCondition |    // Équipement
+    groupCondition |        // Conditions de groupe
+    petCondition |          // Conditions liées aux familiers
+    channelingCondition |   // Conditions de canalisation
+    buttonCondition |       // Conditions de boutons
+    barCondition |          // Conditions de barre d'action
+    talentCondition |       // Conditions de talents
+    combatCondition |       // Conditions de combat
+    statusCondition |       // Conditions de statut
+    environmentCondition    // Conditions d'environnement
+  }
+
+  // Condition avec préfixe 'no'
+  negatedCondition { 'no' conditionStatus }
+
+  // Conditions de ciblage (@target ou target=)
+  targetCondition { ('@' | 'target=') targetElement }
+
+  // Modificateurs de touches et leurs combinaisons
+  modifierCondition { 
+    ('mod' | 'modifier') ':' modifierKey |
+    'mod:' modifierKey
+  }
+
+  modifierKey { 'shift' | 'ctrl' | 'alt' | 'shift,alt' | 'shift,ctrl' | 'alt,ctrl' | 'shift,alt,ctrl' }
+
+  // Postures, formes et états spéciaux
+  stanceCondition { 
+    ('stance' | 'form') ':' @digit ('/' @digit)* |
+    'bonusbar:' @digit |
+    'stealth' |
+    'shadowform' |
+    'moonkin' |
+    'bear' |
+    'cat'
+  }
+
+  // Conditions d'équipement
+  equipmentCondition { 
+    ('equipped' | 'worn') ':' (
+      'shield' |
+      'onehand' |
+      'twohand' |
+      'mainhand' |
+      'offhand' |
+      String
+    )
+  }
+
+  // Conditions de groupe (raid/party)
+  groupCondition { 
     'group' (':' ('party' | 'raid'))? |
-    'pet:' String |
-    ('channeling:' @asciiLetter+) |
-    'button:' @digit
+    'raid' @digit? |
+    'party' @digit?
   }
 
-  conditionStatus {
-    'harm' | 'help' | 'dead' | 'indoors' | 'outdoors' | 'flyable' | 'flying' | 'exists' | 'stealth' | 'form' | 'mod' |
-    'channeling' | 'combat' | 'pvpcombat' | 'canexitvehicle' | 'mounted' | 'petbattle' | 'resting' | 'swimming'
+  // Conditions liées aux familiers
+  petCondition { 
+    'pet:' (
+      'exists' |
+      'dead' |
+      'nodead' |
+      'attacking' |
+      'help' |
+      'harm' |
+      String
+    )
   }
 
+  // Conditions de canalisation de sorts
+  channelingCondition { 
+    'channeling' |
+    'channeling:' String
+  }
+
+  // Conditions de boutons d'action
+  buttonCondition { 'button:' @digit }
+
+  // Conditions de barres d'action
+  barCondition {
+    'actionbar:' @digit |
+    'bonusbar:' @digit |
+    'possessbar' |
+    'overridebar' |
+    'vehicleui'
+  }
+
+  // Conditions de talents et spécialisations
+  talentCondition {
+    'talent:' @digit '/' @digit |
+    'spec:' ('1' | '2' | '3') |
+    'specialization:' ('1' | '2' | '3')
+  }
+
+  // Conditions liées au combat
+  combatCondition {
+    'combat' |
+    'nocombat' |
+    'harm' |
+    'help' |
+    'noharm' |
+    'nohelp' |
+    'pvp' |
+    'nopvp' |
+    'pvpcombat' |
+    'nopvpcombat'
+  }
+
+  // Conditions de statut du personnage
+  statusCondition {
+    'exists' |
+    'dead' |
+    'nodead' |
+    'alive' |
+    'mounted' |
+    'nomounted' |
+    'resting' |
+    'noresting' |
+    'stealth' |
+    'nostealth' |
+    'possessed' |
+    'nopossessed' |
+    'charmed' |
+    'nocharmed'
+  }
+
+  // Conditions liées à l'environnement
+  environmentCondition {
+    'indoors' |
+    'outdoors' |
+    'swimming' |
+    'noswimming' |
+    'flying' |
+    'noflying' |
+    'flyable' |
+    'noflyable' |
+    'floating' |
+    'nofloating' |
+    'falling' |
+    'nofalling'
+  }
+
+  // Types de cibles spécifiques
   targetElement {
-    (
-      ('party' 'pet'? @digit) |
-      ('raid' 'pet'? @digit @digit?) |
-      ('arena' 'pet'? @digit) |
-      ('boss' @digit) |
-      'focus' | 'mouseover' | 'cursor' | 'none' | 'pet' | 'player' | 'target' | 'vehicle'
-    ) 'target'*
+    partyTarget |    // Cibles de groupe
+    raidTarget |     // Cibles de raid
+    arenaTarget |    // Cibles d'arène
+    bossTarget |     // Cibles de boss
+    specialTarget    // Cibles spéciales (focus, mouseover, etc.)
   }
 
-  ConditionOperator { ';' }
+  // Définition des différents types de cibles
+  partyTarget { ('party' 'pet'? @digit) 'target'* }
+  raidTarget { ('raid' 'pet'? @digit @digit?) 'target'* }
+  arenaTarget { ('arena' 'pet'? @digit) 'target'* }
+  bossTarget { ('boss' @digit) 'target'* }
+  specialTarget { 
+    ('focus' | 'mouseover' | 'cursor' | 'none' | 'pet' | 'player' | 'target' | 'vehicle') 'target'*
+  }
 
-  ToggleOperator { '!' }
+  // Opérateurs
+  ConditionOperator { ';' }  // Sépare les conditions
+  ToggleOperator { '!' }     // Bascule l'état d'un sort
 
+  // Gestion des sauts de ligne
   NewLine { ('\n' | '\r' | '\n\r')+ }
 
+  // Définition des espaces
   space { $[ \t]+ }
 }
 
+// Ignorer les espaces sauf dans les chaînes de caractères
 @skip { space }
 @skip {} {
   dontSkipSpacesInStrings { String }
 }
 
+// Détection automatique des délimiteurs
 @detectDelim
