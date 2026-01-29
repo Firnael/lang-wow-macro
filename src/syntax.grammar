@@ -1,3 +1,12 @@
+// ============================================================================
+// GRAMMAIRE LEZER POUR LES MACROS WORLD OF WARCRAFT
+// ============================================================================
+// Cette grammaire supporte la syntaxe complète des macros WoW selon:
+// - La spécification EBNF de Making_a_macro.md
+// - La liste complète des commandes de Wowpedia_Macro_commands.md
+// - Toutes les conditions documentées dans Making_a_macro.md
+// ============================================================================
+
 // Programme principal : une suite de lignes
 @top Program { Line* }
 
@@ -11,36 +20,122 @@ expression {
   Condition |      // Conditions entre crochets [...]
   ConditionOperator | // Opérateur de séparation entre conditions (;)
   ToggleOperator |   // Opérateur de bascule (!)
+  Comma |            // Séparateur de liste pour castsequence/castrandom
+  QuotedString |     // Chaîne entre guillemets
+  ResetOption |      // Option reset= pour castsequence
   String |           // Chaîne de caractères (noms de sorts, etc.)
   Id                 // Identifiant numérique
 }
 
 @tokens {
-  // Annotations pour l'icône de la macro
-  ShowIconTooltip { '#' ('show' | 'showtooltip') $[ ]* String? }
+  // ============================================================================
+  // ANNOTATIONS DE MACRO (#show et #showtooltip)
+  // ============================================================================
+  ShowIconTooltip { '#' ('show' | 'showtooltip') (![\n\r])* }
 
-  // Gestion des espaces dans les noms (ex: "Heal Over Time")
-  nameAfterSpace { $[ ]+ @asciiLetter+ }
+  // ============================================================================
+  // TOKENS POUR LES CHAÎNES DE CARACTÈRES
+  // ============================================================================
+  // Support des caractères spéciaux dans les noms de sorts/objets:
+  // - Apostrophes: Hunter's Mark, Gul'dan
+  // - Parenthèses: Arcane Shot (Rank 1)
+  // - Deux-points: Polymorph: Sheep
+  // - Points d'exclamation: Welcome to the guild!
+  // - Points: Pulling in 3...
+  nameAfterSpace { $[ ]+ nameChar+ }
+  nameChar { @asciiLetter | @digit | '\'' | '-' | '_' | '(' | ')' | ':' | '!' | '.' }
   
-  // Chaînes de caractères avec support des tirets et underscores
-  String { (@asciiLetter | '-' | '_')+ nameAfterSpace* }
-
-  // Identifiants numériques (ex: /use 13)
-  Id { @digit+ }
-
-  // Commandes WoW commençant par '/'
-  Command { '/' commandName }
-
-  // Liste des commandes supportées
-  commandName {
-    'cast' | 'use' | 'target' | 'focus' | 'stopcasting' | 'assist' | 'cleartarget' | 'targetlasttarget' | 'dismount' |
-    'equip' | 'equipset' | 'equipslot' | 'follow' | 'leavevehicule' | 'randompet' | 'afk' | 'startattack' | 'stopattack' |
-    'petattack' | 'petfollow' | 'petstay'
+  // Chaînes entre guillemets (pour support futur de /script)
+  QuotedString { '"' (!["\\] | '\\' _)* '"' }
+  
+  // Option reset= pour /castsequence (doit avoir priorité sur String)
+  // Exemples: reset=target, reset=combat, reset=10, reset=10/shift
+  ResetOption { 'reset=' (@asciiLetter | @digit)+ ('/' (@asciiLetter | @digit)+)* }
+  
+  // Chaînes de caractères commençant par une lettre
+  String { 
+    @asciiLetter ((@asciiLetter | @digit | '-' | '_' | '\'' | '(' | ')' | '.' | ':' | '!')+ nameAfterSpace* | nameAfterSpace+)
   }
 
-  // Structure des conditions entre crochets
-  Condition { '[' conditionList? ']' }
-  conditionList { conditionElement (',' $[ ]* conditionElement)* }
+  // Identifiants numériques (ex: /use 13, /changeactionbar 2)
+  Id { @digit+ }
+
+  // ============================================================================
+  // COMMANDES DE MACRO (liste complète de Wowpedia_Macro_commands.md)
+  // ============================================================================
+  Command {
+    '/' (
+      // ---- Combat commands ----
+      'cast' | 'spell' | 'use' | 'castsequence' | 'castrandom' | 'userandom' |
+      'cancelaura' | 'cancelqueuedspell' | 'cancelform' | 'changeactionbar' |
+      'startattack' | 'stopattack' | 'stopcasting' | 'stopspelltarget' | 'swapactionbar' | 'usetoy' |
+      // ---- Targeting ----
+      'target' | 'targetexact' | 'targetenemy' | 'targetenemyplayer' |
+      'targetfriend' | 'targetfriendplayer' | 'targetparty' | 'targetraid' |
+      'targetlastenemy' | 'targetlastfriend' | 'targetlasttarget' |
+      'assist' | 'cleartarget' | 'focus' | 'clearfocus' |
+      // ---- Pet commands ----
+      'petattack' | 'petfollow' | 'petstay' | 'petmoveto' | 'petpassive' |
+      'petdefensive' | 'petassist' | 'petautocaston' | 'petautocastoff' |
+      'petautocasttoggle' | 'petdismiss' |
+      // ---- Battle pet ----
+      'randomfavoritepet' | 'summonpet' | 'dismisspet' |
+      // ---- Character ----
+      'dismount' | 'equip' | 'equipset' | 'equipslot' | 'follow' |
+      'friend' | 'ignore' | 'inspect' | 'leavevehicle' | 'randompet' |
+      'removefriend' | 'settitle' | 'trade' | 'unignore' |
+      // ---- Chat ----
+      'say' | 'yell' | 'party' | 'raid' | 'guild' | 'officer' |
+      'whisper' | 'reply' | 'emote' | 'afk' | 'dnd' | 'battleground' | 'rw' |
+      // ---- Guild ----
+      'guilddemote' | 'guilddisband' | 'guildinfo' | 'guildinvite' |
+      'guildleader' | 'guildquit' | 'guildmotd' | 'guildpromote' |
+      'guildroster' | 'guildremove' |
+      // ---- Party/Raid ----
+      'clearworldmarker' | 'invite' | 'ffa' | 'group' | 'master' |
+      'mainassist' | 'mainassistoff' | 'maintank' | 'maintankoff' |
+      'promote' | 'raidinfo' | 'readycheck' | 'requestinvite' |
+      'targetmarker' | 'threshold' | 'uninvite' | 'worldmarker' |
+      // ---- PvP ----
+      'duel' | 'forfeit' | 'pvp' | 'wargame' |
+      // ---- System ----
+      'console' | 'click' | 'disableaddons' | 'enableaddons' | 'help' |
+      'logout' | 'macrohelp' | 'played' | 'quit' | 'random' | 'reload' |
+      'script' | 'stopmacro' | 'time' | 'timetest' | 'who' |
+      // ---- Blizzard UI ----
+      'achievements' | 'calendar' | 'guildfinder' | 'dungeonfinder' |
+      'loot' | 'macro' | 'raidfinder' | 'share' | 'stopwatch' |
+      // ---- DevTools ----
+      'api' | 'tableinspect' | 'eventtrace' | 'framestack' | 'dump'
+    )
+  }
+
+  // ============================================================================
+  // OPÉRATEURS ET SYMBOLES
+  // ============================================================================
+  Comma { ',' }
+  ToggleOperator { '!' }
+  ConditionOperator { ';' }
+  
+  // Priorités pour résoudre les conflits de tokens
+  @precedence { 
+    NewLine,
+    ResetOption,
+    String,
+    space
+  }
+  
+  NewLine { $[\r\n] }
+  space { $[ \t] }
+}
+
+// ============================================================================
+// CONDITIONS DE MACRO (basées sur Making_a_macro.md ligne 686)
+// ============================================================================
+
+// Structure des conditions entre crochets
+Condition { '[' conditionList? ']' }
+conditionList { conditionElement (',' conditionElement)* }
 
   // Types de conditions possibles
   conditionElement {
@@ -61,47 +156,54 @@ expression {
   }
 
   // Condition avec préfixe 'no'
-  negatedCondition { 'no' conditionStatus }
+  negatedCondition { 
+    'no' (
+      'combat' | 'harm' | 'help' | 'pvp' | 'pvpcombat' |
+      'exists' | 'dead' | 'mounted' | 'resting' | 'stealth' | 
+      'possessed' | 'charmed' | 'swimming' | 'flying' | 'flyable' |
+      'floating' | 'falling'
+    )
+  }
 
+  // Exemples: mod:shift, modifier:ctrl/alt, mod:shift/ctrl/alt
   // Conditions de ciblage (@target ou target=)
   targetCondition { ('@' | 'target=') targetElement }
 
-  // Modificateurs de touches et leurs combinaisons
+  // Modificateurs de touches et leurs combinaisons (utilise / comme OR)
   modifierCondition { 
-    ('mod' | 'modifier') ':' modifierKey |
-    'mod:' modifierKey
+    ('mod' | 'modifier') ':' modifierList |
+    'mod:' modifierList
   }
 
-  modifierKey { 'shift' | 'ctrl' | 'alt' | 'shift,alt' | 'shift,ctrl' | 'alt,ctrl' | 'shift,alt,ctrl' }
-
-  // Postures, formes et états spéciaux
+  // Postures/Formes (stance/form sont des alias)
+  // Exemples: stance:1/2, form:3
   stanceCondition { 
-    ('stance' | 'form') ':' @digit ('/' @digit)* |
-    'bonusbar:' @digit |
-    'stealth' |
+    ('stance' | 'form') ':' Id ('/' Id)* |
     'shadowform' |
     'moonkin' |
     'bear' |
     'cat'
   }
 
-  // Conditions d'équipement
+  // Conditions d'équipement (equipped/worn sont des alias)
+  // Exemples: equipped:Shields, worn:Two-Handed Axes
   equipmentCondition { 
     ('equipped' | 'worn') ':' (
       'shield' |
       'onehand' |
       'twohand' |
       'mainhand' |
-      'offhand' |
-      String
+      'offhand'
     )
   }
 
   // Conditions de groupe (raid/party)
+  // Exemples: group:party, group:raid, party, raid
   groupCondition { 
-    'group' (':' ('party' | 'raid'))? |
-    'raid' @digit? |
-    'party' @digit?
+    'group:' ('party' | 'raid') |
+    'group' |
+    'raid' Id? |
+    'party' Id?
   }
 
   // Conditions liées aux familiers
@@ -112,32 +214,31 @@ expression {
       'nodead' |
       'attacking' |
       'help' |
-      'harm' |
-      String
+      'harm'
     )
   }
 
   // Conditions de canalisation de sorts
   channelingCondition { 
-    'channeling' |
-    'channeling:' String
+    'channeling'
   }
 
-  // Conditions de boutons d'action
-  buttonCondition { 'button:' @digit }
+  // Conditions de boutons d'action (button: ou btn: comme alias)
+  buttonCondition { ('button' | 'btn') ':' Id }
 
   // Conditions de barres d'action
   barCondition {
-    'actionbar:' @digit |
-    'bonusbar:' @digit |
+    ('actionbar' | 'bar') ':' Id |
+    'bonusbar:' Id |
     'possessbar' |
     'overridebar' |
-    'vehicleui'
+    'vehicleui' |
+    'unithasvehicleui'
   }
 
   // Conditions de talents et spécialisations
   talentCondition {
-    'talent:' @digit '/' @digit |
+    'talent:' Id '/' Id |
     'spec:' ('1' | '2' | '3') |
     'specialization:' ('1' | '2' | '3')
   }
@@ -171,7 +272,8 @@ expression {
     'possessed' |
     'nopossessed' |
     'charmed' |
-    'nocharmed'
+    'nocharmed' |
+    'cursor'
   }
 
   // Conditions liées à l'environnement
@@ -190,40 +292,37 @@ expression {
     'nofalling'
   }
 
-  // Types de cibles spécifiques
-  targetElement {
-    partyTarget |    // Cibles de groupe
-    raidTarget |     // Cibles de raid
-    arenaTarget |    // Cibles d'arène
-    bossTarget |     // Cibles de boss
-    specialTarget    // Cibles spéciales (focus, mouseover, etc.)
-  }
 
-  // Définition des différents types de cibles
-  partyTarget { ('party' 'pet'? @digit) 'target'* }
-  raidTarget { ('raid' 'pet'? @digit @digit?) 'target'* }
-  arenaTarget { ('arena' 'pet'? @digit) 'target'* }
-  bossTarget { ('boss' @digit) 'target'* }
-  specialTarget { 
-    ('focus' | 'mouseover' | 'cursor' | 'none' | 'pet' | 'player' | 'target' | 'vehicle') 'target'*
-  }
-
-  // Opérateurs
-  ConditionOperator { ';' }  // Sépare les conditions
-  ToggleOperator { '!' }     // Bascule l'état d'un sort
-
-  // Gestion des sauts de ligne
-  NewLine { ('\n' | '\r' | '\n\r')+ }
-
-  // Définition des espaces
-  space { $[ \t]+ }
+// ============================================================================
+// TYPES DE CIBLES (pour @target ou target=)
+// ============================================================================
+// Exemples: @player, @mouseover, @party1, @raid10, @boss1target, @focustarget
+targetElement {
+  partyTarget |    // Cibles de groupe
+  raidTarget |     // Cibles de raid
+  arenaTarget |    // Cibles d'arène
+  bossTarget |     // Cibles de boss
+  specialTarget    // Cibles spéciales (focus, mouseover, etc.)
 }
 
-// Ignorer les espaces sauf dans les chaînes de caractères
+// Définition des différents types de cibles
+partyTarget { ('party' 'pet'? Id) 'target'* }
+raidTarget { ('raid' 'pet'? Id Id?) 'target'* }
+arenaTarget { ('arena' 'pet'? Id) 'target'* }
+bossTarget { ('boss' Id) 'target'* }
+specialTarget { 
+  ('focus' | 'mouseover' | 'cursor' | 'none' | 'pet' | 'player' | 'target' | 'vehicle') 'target'*
+}
+
+// ============================================================================
+// LISTES DE MODIFICATEURS ET DE TALENTS
+// ============================================================================
+modifierList { modifier ('/' modifier)* }
+modifier { 'shift' | 'alt' | 'ctrl' }
+talentLevel { '5' | '10' | '15' | '20' | '25' | '30' | '35' | '40' | '45' | '50' }
+
+// Ignorer les espaces blancs (sauf dans les strings où ils sont gérés par nameAfterSpace)
 @skip { space }
-@skip {} {
-  dontSkipSpacesInStrings { String }
-}
 
 // Détection automatique des délimiteurs
 @detectDelim
