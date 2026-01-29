@@ -34,6 +34,18 @@ expression {
   ShowIconTooltip { '#' ('show' | 'showtooltip') (![\n\r])* }
 
   // ============================================================================
+  // TOKENS POUR LES UNIT IDS (party1, raid10target, boss1targettarget, etc.)
+  // ============================================================================
+  // Ce token capture les patterns structurés pour éviter que Word ne les avale.
+  // Exemples: party1, party1target, party1targettarget, raid10, arena2pet, boss1target
+  UnitId {
+    (
+      ('party' | 'raid' | 'arena' | 'boss') 'pet'? @digit+ |
+      ('focus' | 'mouseover' | 'player' | 'pet' | 'target' | 'vehicle' | 'cursor' | 'none')
+    ) ('target')*
+  }
+
+  // ============================================================================
   // TOKENS POUR LES CHAÎNES DE CARACTÈRES
   // ============================================================================
   // Support des caractères spéciaux dans les noms de sorts/objets:
@@ -48,11 +60,15 @@ expression {
   // Chaînes entre guillemets (pour support futur de /script)
   QuotedString { '"' (!["\\] | '\\' _)* '"' }
   
-  // Option reset= pour /castsequence (doit avoir priorité sur String)
+  // Option reset= pour /castsequence (doit avoir priorité sur Word)
   // Exemples: reset=target, reset=combat, reset=10, reset=10/shift
   ResetOption { 'reset=' (@asciiLetter | @digit)+ ('/' (@asciiLetter | @digit)+)* }
   
-  // Chaînes de caractères commençant par une lettre
+  // Token @ pour la syntaxe [@unit] (alias de [target=unit])
+  AtSign { '@' }
+  
+  // Chaînes de caractères commençant par une lettre (pour noms de sorts/items)
+  // Note: UnitId a priorité sur String grâce à @precedence
   String { 
     @asciiLetter ((@asciiLetter | @digit | '-' | '_' | '\'' | '(' | ')' | '.' | ':' | '!')+ nameAfterSpace* | nameAfterSpace+)
   }
@@ -118,14 +134,16 @@ expression {
   ConditionOperator { ';' }
   
   // Priorités pour résoudre les conflits de tokens
+  // UnitId doit être testé avant String pour capturer party1, raid10, etc.
   @precedence { 
     NewLine,
     ResetOption,
+    UnitId,
     String,
     space
   }
   
-  NewLine { $[\r\n] }
+  NewLine { '\r'? '\n' }
   space { $[ \t] }
 }
 
@@ -137,181 +155,117 @@ expression {
 Condition { '[' conditionList? ']' }
 conditionList { conditionElement (',' conditionElement)* }
 
-  // Types de conditions possibles
-  conditionElement {
-    negatedCondition |      // Conditions avec 'no' préfixé
-    targetCondition |       // Conditions de ciblage (@target)
-    modifierCondition |     // Modificateurs (shift, alt, ctrl)
-    stanceCondition |       // Postures et formes
-    equipmentCondition |    // Équipement
-    groupCondition |        // Conditions de groupe
-    petCondition |          // Conditions liées aux familiers
-    channelingCondition |   // Conditions de canalisation
-    buttonCondition |       // Conditions de boutons
-    barCondition |          // Conditions de barre d'action
-    talentCondition |       // Conditions de talents
-    combatCondition |       // Conditions de combat
-    statusCondition |       // Conditions de statut
-    environmentCondition    // Conditions d'environnement
-  }
+// Types de conditions possibles
+conditionElement {
+  negatedCondition |      // Conditions avec 'no' préfixé (toujours en premier pour éviter conflits)
+  targetCondition |       // Conditions de ciblage (@target)
+  modifierCondition |     // Modificateurs (shift, alt, ctrl) - reconnaissable par :
+  stanceCondition |       // Postures et formes - reconnaissable par : ou mots spécifiques
+  equipmentCondition |    // Équipement - reconnaissable par :
+  groupCondition |        // Conditions de groupe - reconnaissable par : ou mots spécifiques
+  petCondition |          // Conditions liées aux familiers - reconnaissable par :
+  buttonCondition |       // Conditions de boutons - reconnaissable par :
+  barCondition |          // Conditions de barre d'action - reconnaissable par :
+  talentCondition |       // Conditions de talents - reconnaissable par /
+  channelingCondition |   // Conditions de canalisation
+  combatCondition |       // Conditions de combat
+  statusCondition |       // Conditions de statut
+  environmentCondition    // Conditions d'environnement
+}
 
-  // Condition avec préfixe 'no'
-  negatedCondition { 
-    'no' (
-      'combat' | 'harm' | 'help' | 'pvp' | 'pvpcombat' |
-      'exists' | 'dead' | 'mounted' | 'resting' | 'stealth' | 
-      'possessed' | 'charmed' | 'swimming' | 'flying' | 'flyable' |
-      'floating' | 'falling'
-    )
-  }
+// Condition avec préfixe 'no'
+negatedCondition { 
+  'no' (
+    'combat' | 'harm' | 'help' | 'pvp' | 'pvpcombat' |
+    'exists' | 'dead' | 'mounted' | 'resting' | 'stealth' | 
+    'possessed' | 'charmed' | 'swimming' | 'flying' | 'flyable' |
+    'floating' | 'falling'
+  )
+}
 
-  // Exemples: mod:shift, modifier:ctrl/alt, mod:shift/ctrl/alt
-  // Conditions de ciblage (@target ou target=)
-  targetCondition { ('@' | 'target=') targetElement }
+// Exemples: mod:shift, modifier:ctrl/alt, mod:shift/ctrl/alt
+// Conditions de ciblage (@target ou target=) - les deux produisent le même AST
+targetCondition { (AtSign | 'target=') targetElement }
 
-  // Modificateurs de touches et leurs combinaisons (utilise / comme OR)
-  modifierCondition { 
-    ('mod' | 'modifier') ':' modifierList |
-    'mod:' modifierList
-  }
+// Modificateurs de touches et leurs combinaisons (utilise / comme OR)
+modifierCondition { 
+  ('mod' | 'modifier') ':' modifierList
+}
 
-  // Postures/Formes (stance/form sont des alias)
-  // Exemples: stance:1/2, form:3
-  stanceCondition { 
-    ('stance' | 'form') ':' Id ('/' Id)* |
-    'shadowform' |
-    'moonkin' |
-    'bear' |
-    'cat'
-  }
+// Postures/Formes (stance/form sont des alias)
+// Exemples: stance:1/2, form:3
+stanceCondition { 
+  ('stance' | 'form') ':' Id ('/' Id)* |
+  'shadowform' | 'moonkin' | 'bear' | 'cat'
+}
 
-  // Conditions d'équipement (equipped/worn sont des alias)
-  // Exemples: equipped:Shields, worn:Two-Handed Axes
-  equipmentCondition { 
-    ('equipped' | 'worn') ':' (
-      'shield' |
-      'onehand' |
-      'twohand' |
-      'mainhand' |
-      'offhand'
-    )
-  }
+// Conditions d'équipement (equipped/worn sont des alias)
+// Exemples: equipped:Shields, worn:Two-Handed Axes
+equipmentCondition { 
+  ('equipped' | 'worn') ':' String
+}
 
-  // Conditions de groupe (raid/party)
-  // Exemples: group:party, group:raid, party, raid
-  groupCondition { 
-    'group:' ('party' | 'raid') |
-    'group' |
-    'raid' Id? |
-    'party' Id?
-  }
+// Conditions de groupe (raid/party)
+// Exemples: group:party, group:raid, party, raid
+groupCondition { 
+  'group:' ('party' | 'raid') |
+  'group' |
+  'raid' Id? |
+  'party' Id?
+}
 
-  // Conditions liées aux familiers
-  petCondition { 
-    'pet:' (
-      'exists' |
-      'dead' |
-      'nodead' |
-      'attacking' |
-      'help' |
-      'harm'
-    )
-  }
+// Conditions liées aux familiers
+petCondition { 
+  'pet:' String
+}
 
-  // Conditions de canalisation de sorts
-  channelingCondition { 
-    'channeling'
-  }
+// Conditions de canalisation de sorts
+channelingCondition { 
+  'channeling' (':' String)?
+}
 
-  // Conditions de boutons d'action (button: ou btn: comme alias)
-  buttonCondition { ('button' | 'btn') ':' Id }
+// Conditions de boutons d'action (button: ou btn: comme alias)
+buttonCondition { ('button' | 'btn') ':' Id }
 
-  // Conditions de barres d'action
-  barCondition {
-    ('actionbar' | 'bar') ':' Id |
-    'bonusbar:' Id |
-    'possessbar' |
-    'overridebar' |
-    'vehicleui' |
-    'unithasvehicleui'
-  }
+// Conditions de barres d'action
+barCondition {
+  ('actionbar' | 'bar') ':' Id |
+  'bonusbar:' Id |
+  'possessbar' | 'overridebar' | 'vehicleui' | 'unithasvehicleui'
+}
 
-  // Conditions de talents et spécialisations
-  talentCondition {
-    'talent:' Id '/' Id |
-    'spec:' ('1' | '2' | '3') |
-    'specialization:' ('1' | '2' | '3')
-  }
+// Conditions de talents et spécialisations
+talentCondition {
+  'talent:' Id '/' Id |
+  'spec:' Id |
+  'specialization:' Id
+}
 
-  // Conditions liées au combat
-  combatCondition {
-    'combat' |
-    'nocombat' |
-    'harm' |
-    'help' |
-    'noharm' |
-    'nohelp' |
-    'pvp' |
-    'nopvp' |
-    'pvpcombat' |
-    'nopvpcombat'
-  }
+// Conditions liées au combat
+combatCondition {
+  'combat' | 'harm' | 'help' | 'pvp' | 'pvpcombat'
+}
 
-  // Conditions de statut du personnage
-  statusCondition {
-    'exists' |
-    'dead' |
-    'nodead' |
-    'alive' |
-    'mounted' |
-    'nomounted' |
-    'resting' |
-    'noresting' |
-    'stealth' |
-    'nostealth' |
-    'possessed' |
-    'nopossessed' |
-    'charmed' |
-    'nocharmed' |
-    'cursor'
-  }
+// Conditions de statut du personnage
+statusCondition {
+  'exists' | 'dead' | 'alive' | 'mounted' | 'resting' |
+  'stealth' | 'possessed' | 'charmed' | 'cursor'
+}
 
-  // Conditions liées à l'environnement
-  environmentCondition {
-    'indoors' |
-    'outdoors' |
-    'swimming' |
-    'noswimming' |
-    'flying' |
-    'noflying' |
-    'flyable' |
-    'noflyable' |
-    'floating' |
-    'nofloating' |
-    'falling' |
-    'nofalling'
-  }
+// Conditions liées à l'environnement
+environmentCondition {
+  'indoors' | 'outdoors' | 'swimming' | 'flying' | 'flyable' |
+  'floating' | 'falling'
+}
 
 
 // ============================================================================
 // TYPES DE CIBLES (pour @target ou target=)
 // ============================================================================
-// Exemples: @player, @mouseover, @party1, @raid10, @boss1target, @focustarget
+// UnitId capture déjà les patterns structurés: party1, raid10target, focustarget, etc.
+// On utilise directement UnitId au lieu de parser 'party' Id 'target'*
 targetElement {
-  partyTarget |    // Cibles de groupe
-  raidTarget |     // Cibles de raid
-  arenaTarget |    // Cibles d'arène
-  bossTarget |     // Cibles de boss
-  specialTarget    // Cibles spéciales (focus, mouseover, etc.)
-}
-
-// Définition des différents types de cibles
-partyTarget { ('party' 'pet'? Id) 'target'* }
-raidTarget { ('raid' 'pet'? Id Id?) 'target'* }
-arenaTarget { ('arena' 'pet'? Id) 'target'* }
-bossTarget { ('boss' Id) 'target'* }
-specialTarget { 
-  ('focus' | 'mouseover' | 'cursor' | 'none' | 'pet' | 'player' | 'target' | 'vehicle') 'target'*
+  UnitId
 }
 
 // ============================================================================

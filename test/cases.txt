@@ -125,11 +125,11 @@ Program(
 ==>
 
 Program(
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, Condition, Condition, String)
+  Line(Command, Condition(AtSign,UnitId), String, NewLine),
+  Line(Command, Condition(AtSign,UnitId), String, NewLine),
+  Line(Command, Condition(AtSign,UnitId), String, NewLine),
+  Line(Command, Condition(AtSign,UnitId), String, NewLine),
+  Line(Command, Condition(AtSign,UnitId), Condition(AtSign,UnitId), Condition(AtSign,UnitId), String)
 )
 
 # Pet commands - all variants
@@ -149,7 +149,7 @@ Program(
 ==>
 
 Program(
-  Line(Command, Condition, NewLine),
+  Line(Command, Condition(AtSign,UnitId), NewLine),
   Line(Command, NewLine),
   Line(Command, NewLine),
   Line(Command, NewLine),
@@ -210,16 +210,16 @@ Program(
 
 Program(
   Line(Command, NewLine),
-  Line(Command, Condition, NewLine),
+  Line(Command, Condition(AtSign,UnitId), NewLine),
   Line(Command, NewLine),
   Line(Command, NewLine),
   Line(Command, String, NewLine),
   Line(Command, String, NewLine),
   Line(Command, String, NewLine),
   Line(Command, String, NewLine),
-  Line(Command, Condition, NewLine),
+  Line(Command, Condition(AtSign,UnitId), NewLine),
   Line(Command, String, NewLine),
-  Line(Command, Condition)
+  Line(Command, Condition(AtSign,UnitId))
 )
 
 # Guild commands
@@ -302,7 +302,7 @@ Program(
 ==>
 
 Program(
-  Line(Command, Condition, NewLine),
+  Line(Command, Condition(AtSign,UnitId), NewLine),
   Line(Command, NewLine),
   Line(Command, NewLine),
   Line(Command, String)
@@ -445,7 +445,7 @@ Program(
   Line(Command, NewLine),
   Line(Command, Id, NewLine),
   Line(Command, Id, Id, NewLine),
-  Line(Command, Condition, NewLine),
+  Line(Command, Condition(AtSign,UnitId), NewLine),
   Line(Command, NewLine),
   Line(Command, NewLine),
   Line(Command, NewLine),
@@ -463,11 +463,11 @@ Program(
 ==>
 
 Program(
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String)
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id,Id), String, NewLine),
+  Line(Command, Condition(Id,Id), String)
 )
 
 # Equipment conditions
@@ -480,10 +480,10 @@ Program(
 ==>
 
 Program(
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, ConditionOperator, String)
+  Line(Command, Condition(String), String, NewLine),
+  Line(Command, Condition(String), String, NewLine),
+  Line(Command, Condition(String,Id), String, NewLine),
+  Line(Command, Condition(String), String, ConditionOperator, String)
 )
 
 # Pet conditions
@@ -496,10 +496,10 @@ Program(
 ==>
 
 Program(
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition)
+  Line(Command, Condition(String), String, NewLine),
+  Line(Command, Condition(String), String, NewLine),
+  Line(Command, Condition(String), String, NewLine),
+  Line(Command, Condition(String,AtSign,UnitId))
 )
 
 # Environment conditions
@@ -545,7 +545,7 @@ Program(
 
 Program(
   Line(Command, Condition, NewLine),
-  Line(Command, Condition, String)
+  Line(Command, Condition(String), String)
 )
 
 # Button conditions
@@ -556,8 +556,8 @@ Program(
 ==>
 
 Program(
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String)
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id), String)
 )
 
 # Action bar conditions
@@ -569,9 +569,9 @@ Program(
 ==>
 
 Program(
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String)
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id), String)
 )
 
 # Spec and talent conditions
@@ -585,11 +585,11 @@ Program(
 ==>
 
 Program(
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String)
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id,Id), String, NewLine),
+  Line(Command, Condition(Id,Id), String)
 )
 
 # Multiple conditions combined
@@ -601,9 +601,9 @@ Program(
 ==>
 
 Program(
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, Condition, Condition, Condition, String)
+  Line(Command, Condition(AtSign,UnitId), String, NewLine),
+  Line(Command, Condition(AtSign,UnitId), String, NewLine),
+  Line(Command, Condition(AtSign,UnitId), Condition(AtSign,UnitId), Condition(AtSign,UnitId), Condition(AtSign,UnitId), String)
 )
 
 # Semicolon alternation (condition chains)
@@ -617,7 +617,7 @@ Program(
 
 Program(
   Line(Command, Condition, String, ConditionOperator, String, NewLine),
-  Line(Command, Condition, Condition, Condition, String, NewLine),
+  Line(Command, Condition(AtSign,UnitId), Condition(AtSign,UnitId), Condition(AtSign,UnitId), String, NewLine),
   Line(Command, Condition, String, ConditionOperator, String, NewLine),
   Line(Command, Condition, String, ConditionOperator, Condition, String, ConditionOperator, String)
 )
@@ -649,7 +649,7 @@ Program(
 
 Program(
   Line(ShowIconTooltip, NewLine),
-  Line(Command, Condition, Condition, Condition, String)
+  Line(Command, Condition(AtSign,UnitId), Condition(AtSign,UnitId), Condition, String)
 )
 
 # Complex multi-line macros - with conditions
@@ -662,8 +662,8 @@ Program(
 
 Program(
   Line(ShowIconTooltip, NewLine),
-  Line(Command, Condition, Condition, String, NewLine),
-  Line(Command, Condition, Condition, Condition, String)
+  Line(Command, Condition(AtSign,UnitId), Condition(AtSign,UnitId), String, NewLine),
+  Line(Command, Condition(AtSign,UnitId), Condition(AtSign,UnitId), Condition(AtSign,UnitId), String)
 )
 
 # Complex multi-line macros - stance example
@@ -677,8 +677,8 @@ Program(
 
 Program(
   Line(ShowIconTooltip, NewLine),
-  Line(Command, Condition, String, NewLine),
-  Line(Command, Condition, String, NewLine),
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id), String, NewLine),
   Line(Command, String)
 )
 
@@ -711,7 +711,7 @@ Program(
 ==>
 
 Program(
-  Line(Command, Condition, String)
+  Line(Command, Condition(Id,String,String), String)
 )
 
 # Edge cases - spell names with special characters
