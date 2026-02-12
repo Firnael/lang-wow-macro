@@ -1,56 +1,700 @@
+# Basic commands - Combat
+
+/cast Fireball
+
+==>
+
+Program(
+  Line(Command, String)
+)
+
+# Spell command
+
+/spell Frostbolt
+
+==>
+
+Program(
+  Line(Command, String)
+)
+
+# Use command
+
+/use Healthstone
+
+==>
+
+Program(
+  Line(Command, String)
+)
+
+# Castsequence command
+
+/castsequence Fireball, Fireball, Frostbolt
+
+==>
+
+Program(
+  Line(Command, String, Comma, String, Comma, String)
+)
+
+# Castrandom command
+
+/castrandom Fireball, Frostbolt, Arcane Missiles
+
+==>
+
+Program(
+  Line(Command, String, Comma, String, Comma, String)
+)
+
+# Modifiers with / as OR separator (Wowpedia spec)
+
+/cast [mod:shift/ctrl] Greater Heal
+/cast [mod:alt/shift] Flash Heal
+/use [mod:shift/ctrl/alt] Trinket
+
+==>
+
+Program(
+  Line(Command, Condition, String, NewLine),
+  Line(Command, Condition, String, NewLine),
+  Line(Command, Condition, String)
+)
+
+# Toggle prefix ! (prevents toggle-off)
+
+/cast !Auto Attack
+/cast !Aspect of the Hawk
+/cast [mod:shift] !Stealth
+
+==>
+
+Program(
+  Line(Command, ToggleOperator, String, NewLine),
+  Line(Command, ToggleOperator, String, NewLine),
+  Line(Command, Condition, ToggleOperator, String)
+)
+
+# Targeting functions
+
+/target PlayerName
+/targetexact ExactName
+/targetenemy
+/targetenemyplayer
+/targetfriend
+/targetfriendplayer
+/targetparty
+/targetraid
+/targetlastenemy
+/targetlastfriend
+/targetlasttarget
+/assist PartyMember
+/cleartarget
+/focus BossName
+/clearfocus
+
+==>
+
+Program(
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command)
+)
+
+# Targeting with @ syntax
+
+/cast [@mouseover] Fireball
+/cast [@target] Heal
+/cast [@party1] Innervate
+/cast [@focus,harm,nodead] Shadow Word: Pain
+/cast [@mouseover,help][@target,help][@player] Heal
+
+==>
+
+Program(
+  Line(Command, Condition(AtSign,UnitId), String, NewLine),
+  Line(Command, Condition(AtSign,UnitId), String, NewLine),
+  Line(Command, Condition(AtSign,UnitId), String, NewLine),
+  Line(Command, Condition(AtSign,UnitId), String, NewLine),
+  Line(Command, Condition(AtSign,UnitId), Condition(AtSign,UnitId), Condition(AtSign,UnitId), String)
+)
+
+# Pet commands - all variants
+
+/petattack [@mouseover,harm]
+/petfollow
+/petstay
+/petmoveto
+/petpassive
+/petdefensive
+/petassist
+/petautocaston Dash
+/petautocastoff Growl
+/petautocasttoggle Cower
+/petdismiss
+
+==>
+
+Program(
+  Line(Command, Condition(AtSign,UnitId), NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command)
+)
+
+# Battle pet commands
+
+/randomfavoritepet
+/summonpet Azure Whelpling
+/dismisspet
+
+==>
+
+Program(
+  Line(Command, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command)
+)
+
+# Equipment commands
+
+/equip Sword of Justice
+/equipset Tank
+/equipslot 16 Two-Hand Axe
+/equipslot [mod:shift] 16 Shield
+
+==>
+
+Program(
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, Id, String, NewLine),
+  Line(Command, Condition, Id, String)
+)
+
+# Character commands
+
+/dismount
+/follow [@party1]
+/leavevehicle
+/randompet
+/friend NewFriend
+/removefriend OldFriend
+/ignore Spammer
+/unignore ForgivenPlayer
+/inspect [@target]
+/settitle Jenkins
+/trade [@target]
+
+==>
+
+Program(
+  Line(Command, NewLine),
+  Line(Command, Condition(AtSign,UnitId), NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, Condition(AtSign,UnitId), NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, Condition(AtSign,UnitId))
+)
+
+# Guild commands
+
+/guildinvite FriendName
+/guildpromote MemberName
+/guilddemote MemberName
+/guildroster
+/guildinfo
+/guildmotd Welcome to the guild
+/guildquit
+/guildleader NewLeader
+/guilddisband
+/guildremove BadMember
+
+==>
+
+Program(
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, NewLine),
+  Line(Command, String)
+)
+
+# Party and Raid commands
+
+/invite PlayerName
+/uninvite PlayerName
+/promote PartyMember
+/readycheck
+/raidinfo
+/mainassist PlayerName
+/maintank TankName
+/mainassistoff
+/maintankoff
+/ffa
+/group
+/master
+/threshold 3
+/targetmarker 8
+/worldmarker 1
+/clearworldmarker
+/requestinvite RaidLeader
+
+==>
+
+Program(
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, Id, NewLine),
+  Line(Command, Id, NewLine),
+  Line(Command, Id, NewLine),
+  Line(Command, NewLine),
+  Line(Command, String)
+)
+
+# PvP commands
+
+/duel [@target]
+/forfeit
+/pvp
+/wargame OpponentName
+
+==>
+
+Program(
+  Line(Command, Condition(AtSign,UnitId), NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, String)
+)
+
+# System commands
+
+/reload
+/logout
+/quit
+/console GameplaySettings
+/click ActionButton1
+/stopmacro [mounted]
+/random 100
+/time
+/timetest
+/who Mage
+/played
+/help
+/macrohelp
+/disableaddons
+/enableaddons
+
+==>
+
+Program(
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, Condition, NewLine),
+  Line(Command, Id, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command)
+)
+
+# Chat commands
+
+/say Hello everyone!
+/yell Help!
+/party Ready to go
+/raid Pulling in 3...
+/guild Looking for group
+/officer Officer meeting tonight
+/whisper FriendName Hey there
+/reply Thanks!
+/emote waves
+/afk Bio break
+/dnd Working
+/battleground Defend the flag!
+/rw BOSS INCOMING!
+
+==>
+
+Program(
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String)
+)
+
+# Blizzard UI commands
+
+/achievements
+/calendar
+/guildfinder
+/dungeonfinder
+/loot
+/macro
+/raidfinder
+/share
+/stopwatch
+
+==>
+
+Program(
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command)
+)
+
+# DevTools commands
+
+/api functionName
+/tableinspect tableName
+/eventtrace
+/framestack
+/dump variableName
+
+==>
+
+Program(
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, String)
+)
+
+# Other combat commands
+
+/cancelaura Blessing of Protection
+/cancelform
+/cancelqueuedspell
+/changeactionbar 2
+/swapactionbar 1 2
+/startattack [@mouseover,harm]
+/stopattack
+/stopcasting
+/stopspelltarget
+/usetoy Toyname
+
+==>
+
+Program(
+  Line(Command, String, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, Id, NewLine),
+  Line(Command, Id, Id, NewLine),
+  Line(Command, Condition(AtSign,UnitId), NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, NewLine),
+  Line(Command, String)
+)
+
+# Complex conditions - stance/form
+
+/cast [stance:1] Shield Slam
+/cast [stance:2] Berserker Rage
+/cast [stance:3] Battle Stance
+/cast [form:1/2] Moonfire
+/cast [stance:1/2] Multi Stance Spell
+
+==>
+
+Program(
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id,Id), String, NewLine),
+  Line(Command, Condition(Id,Id), String)
+)
+
+# Equipment conditions
+
+/cast [equipped:shield] Shield Bash
+/cast [equipped:twohand] Mortal Strike
+/use [worn:shield,stance:1] Shield Wall
+/equip [equipped:twohand] Shield; Axe
+
+==>
+
+Program(
+  Line(Command, Condition(String), String, NewLine),
+  Line(Command, Condition(String), String, NewLine),
+  Line(Command, Condition(String,Id), String, NewLine),
+  Line(Command, Condition(String), String, ConditionOperator, String)
+)
+
+# Pet conditions
+
+/cast [pet:exists] Mend Pet
+/cast [pet:dead,combat] Revive Pet
+/cast [pet:Cat] Claw
+/petattack [pet:exists,@mouseover,harm]
+
+==>
+
+Program(
+  Line(Command, Condition(String), String, NewLine),
+  Line(Command, Condition(String), String, NewLine),
+  Line(Command, Condition(String), String, NewLine),
+  Line(Command, Condition(String,AtSign,UnitId))
+)
+
+# Environment conditions
+
+/cast [indoors] Indoor Spell
+/cast [outdoors] Outdoor Spell
+/cast [swimming] Swim Spell
+/cast [flying] Flying Spell
+/cast [flyable] Flight Form
+/cast [noflying] Ground Spell
+
+==>
+
+Program(
+  Line(Command, Condition, String, NewLine),
+  Line(Command, Condition, String, NewLine),
+  Line(Command, Condition, String, NewLine),
+  Line(Command, Condition, String, NewLine),
+  Line(Command, Condition, String, NewLine),
+  Line(Command, Condition, String)
+)
+
+# PvP conditions
+
+/cast [pvp] PvP Ability
+/cast [nopvp] PvE Ability
+/cast [pvpcombat] Combat PvP Spell
+
+==>
+
+Program(
+  Line(Command, Condition, String, NewLine),
+  Line(Command, Condition, String, NewLine),
+  Line(Command, Condition, String)
+)
+
+# Channeling conditions
+
+/stopcasting [channeling]
+/cast [channeling:Mind Flay] New Spell
+
+==>
+
+Program(
+  Line(Command, Condition, NewLine),
+  Line(Command, Condition(String), String)
+)
+
+# Button conditions
+
+/cast [button:1] Left Click Spell
+/cast [button:2] Right Click Spell
+
+==>
+
+Program(
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id), String)
+)
+
+# Action bar conditions
+
+/cast [actionbar:1] Bar 1 Spell
+/cast [actionbar:2] Bar 2 Spell
+/cast [bonusbar:5] Bonus Bar Spell
+
+==>
+
+Program(
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id), String)
+)
+
+# Spec and talent conditions
+
+/cast [spec:1] Spec 1 Ability
+/cast [spec:2] Spec 2 Ability
+/cast [spec:3] Spec 3 Ability
+/cast [talent:1/1] Talented Spell
+/cast [talent:2/3] Row 2 Col 3 Talent
+
+==>
+
+Program(
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id,Id), String, NewLine),
+  Line(Command, Condition(Id,Id), String)
+)
+
+# Multiple conditions combined
+
+/cast [@mouseover,harm,nodead,combat] Fireball
+/use [@target,help,exists,nocombat] Bandage
+/cast [mod:shift,@focus,harm][mod:shift,@target,harm][@focus,harm][@target,harm] Polymorph
+
+==>
+
+Program(
+  Line(Command, Condition(AtSign,UnitId), String, NewLine),
+  Line(Command, Condition(AtSign,UnitId), String, NewLine),
+  Line(Command, Condition(AtSign,UnitId), Condition(AtSign,UnitId), Condition(AtSign,UnitId), Condition(AtSign,UnitId), String)
+)
+
+# Semicolon alternation (condition chains)
+
+/cast [mod:shift] Greater Heal; Flash Heal
+/cast [@mouseover,help] [@target,help] [@player] Heal
+/use [combat] Healthstone; Mana Gem
+/cast [combat,mod:shift] Shield Block; [combat] Shield Slam; Battle Shout
+
+==>
+
+Program(
+  Line(Command, Condition, String, ConditionOperator, String, NewLine),
+  Line(Command, Condition(AtSign,UnitId), Condition(AtSign,UnitId), Condition(AtSign,UnitId), String, NewLine),
+  Line(Command, Condition, String, ConditionOperator, String, NewLine),
+  Line(Command, Condition, String, ConditionOperator, Condition, String, ConditionOperator, String)
+)
+
 # Annotations
 
-#show Ice Nova
-#showtooltip Fireball
+#show
+#show Fireball
+#showtooltip
+#showtooltip Flash Heal
+#showtooltip [@mouseover] Heal
 
 ==>
 
 Program(
   Line(ShowIconTooltip, NewLine),
+  Line(ShowIconTooltip, NewLine),
+  Line(ShowIconTooltip, NewLine),
+  Line(ShowIconTooltip, NewLine),
   Line(ShowIconTooltip)
 )
 
-# Ids
+# Complex multi-line macros
 
-/use 13
+#showtooltip
+/cast [@mouseover,harm,nodead][@target,harm,nodead][] Fireball
 
 ==>
 
 Program(
-  Line(Command, Id)
+  Line(ShowIconTooltip, NewLine),
+  Line(Command, Condition(AtSign,UnitId), Condition(AtSign,UnitId), Condition, String)
 )
 
-# Toggle Operator '!'
+# Complex multi-line macros - with conditions
 
-/cast !Travel Form
+#show [mod:shift] Greater Heal; Flash Heal
+/cast [mod:shift,@mouseover,help][@mouseover,help] Greater Heal
+/cast [@mouseover,help][@target,help][@player] Flash Heal
 
 ==>
 
 Program(
-  Line(Command, ToggleOperator, String)
+  Line(ShowIconTooltip, NewLine),
+  Line(Command, Condition(AtSign,UnitId), Condition(AtSign,UnitId), String, NewLine),
+  Line(Command, Condition(AtSign,UnitId), Condition(AtSign,UnitId), Condition(AtSign,UnitId), String)
 )
 
-# Conditions : Target elements
+# Complex multi-line macros - stance example
 
-/cast [target=party1] Heal; [target=partypet1] Mend pet; Greater Heal
-/cast [@raid15] Heal; [@raidpet15] Mend pet; Greater Heal
-/cast [@arena2] Heal; [@arenapet2] Mend pet; Greater Heal
-/cast [@focus] Heal
-/cast [@mouseover] Heal
-/cast [@none] Heal
-/cast [@pet] Heal
-/cast [@player] Heal
-/cast [@target] Heal
-/cast [@vehicle] Heal
-/cast [target=targettargettargettarget] Wait what
+#showtooltip [stance:1] Defensive Stance; [stance:2] Berserker Stance; Battle Stance
+/cast [stance:1] Shield Block
+/cast [stance:2] Berserker Rage
+/cast Battle Shout
 
 ==>
 
 Program(
-  Line(Command, Condition, String, ConditionOperator, Condition, String, ConditionOperator, String, NewLine),
-  Line(Command, Condition, String, ConditionOperator, Condition, String, ConditionOperator, String, NewLine),
-  Line(Command, Condition, String, ConditionOperator, Condition, String, ConditionOperator, String, NewLine),
-  Line(Command, Condition, String, NewLine),
+  Line(ShowIconTooltip, NewLine),
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, Condition(Id), String, NewLine),
+  Line(Command, String)
+)
+
+# Negated conditions
+
+/cast [nocombat] Buff
+/cast [noharm] Friendly Spell
+/cast [nohelp] Offensive Spell
+/cast [nomounted] Dismount Action
+/cast [nodead] Combat Spell
+/cast [nostealth] Non Stealth Ability
+/cast [noexists] Self Buff
+
+==>
+
+Program(
   Line(Command, Condition, String, NewLine),
   Line(Command, Condition, String, NewLine),
   Line(Command, Condition, String, NewLine),
@@ -60,50 +704,78 @@ Program(
   Line(Command, Condition, String)
 )
 
-# Conditions : Status
+# All condition types
 
-/cast [dead] Resurrection; Heal
-/cast [help] Holy Fire; [harm] Smite
-/cast [noharm] Heal; [nodead] Smite
+/cast [combat,harm,nodead,exists,mod:shift,stance:1,equipped:shield,party,pet:exists,indoors,pvp] Complex Spell
 
 ==>
 
 Program(
-  Line(Command, Condition, String, ConditionOperator, String, NewLine),
-  Line(Command, Condition, String, ConditionOperator, Condition, String, NewLine),
-  Line(Command, Condition, String, ConditionOperator, Condition, String)
+  Line(Command, Condition(Id,String,String), String)
 )
 
-# Conditions : Modifiers
+# Edge cases - spell names with special characters
 
-/cast [mod:shift] Dispel Magic; [modifier:alt] Purify
-/cast [mod:ctrl] Resurrection; Mass Resurrection
+/cast Arcane Shot (Rank 1)
+/cast Hunter's Mark
+/use Skull of Gul'dan
+/cast Nature's Swiftness
 
 ==>
 
 Program(
-  Line(Command, Condition, String, ConditionOperator, Condition, String, NewLine),
-  Line(Command, Condition, String, ConditionOperator, String)
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String, NewLine),
+  Line(Command, String)
 )
 
-# Conditions : Stances & forms
+# Userandom command
 
-/cast [stance:1/2] Shield Bash; Defensive Stance
-/cast [form:1] Swipe; Mangle
+/userandom Polymorph: Sheep, Polymorph: Pig
 
 ==>
 
 Program(
-  Line(Command, Condition, String, ConditionOperator, String, NewLine),
-  Line(Command, Condition, String, ConditionOperator, String)
+  Line(Command, String, Comma, String)
 )
 
-# Conditions : Default
+# Castsequence with reset options
 
-/cast [@cursor][] Shield Bash; [@focus] Defensive Stance
+/castsequence reset=target Immolate, Corruption
+/castsequence reset=combat Bloodthirst, Whirlwind
+/castsequence reset=30 Moonfire, Wrath
+/castsequence reset=10/shift Spell 1, Other Spell
 
 ==>
 
 Program(
-  Line(Command, Condition, Condition, String, ConditionOperator, Condition, String)
+  Line(Command, ResetOption, String, Comma, String, NewLine),
+  Line(Command, ResetOption, String, Comma, String, NewLine),
+  Line(Command, ResetOption, String, Comma, String, NewLine),
+  Line(Command, ResetOption, String, Comma, String)
+)
+
+# Group conditions
+
+/cast [group:party] Party Only Spell
+/cast [group:raid] Raid Only Spell
+
+==>
+
+Program(
+  Line(Command, Condition, String, NewLine),
+  Line(Command, Condition, String)
+)
+
+# Chat with punctuation
+
+/guildmotd Welcome to the guild!
+/say Hello there!
+
+==>
+
+Program(
+  Line(Command, String, NewLine),
+  Line(Command, String)
 )

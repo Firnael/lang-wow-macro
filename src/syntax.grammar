@@ -1,75 +1,282 @@
+// ============================================================================
+// GRAMMAIRE LEZER POUR LES MACROS WORLD OF WARCRAFT
+// ============================================================================
+// Cette grammaire supporte la syntaxe complète des macros WoW selon:
+// - La spécification EBNF de Making_a_macro.md
+// - La liste complète des commandes de Wowpedia_Macro_commands.md
+// - Toutes les conditions documentées dans Making_a_macro.md
+// ============================================================================
+
+// Programme principal : une suite de lignes
 @top Program { Line* }
 
+// Une ligne peut être soit une annotation (#show/#showtooltip), soit une commande avec des expressions
 Line {
   (ShowIconTooltip | Command expression*) NewLine?
 }
 
+// Les expressions possibles dans une ligne de macro
 expression {
-  Condition |
-  ConditionOperator |
-  ToggleOperator |
-  String |
-  Id
+  Condition |      // Conditions entre crochets [...]
+  ConditionOperator | // Opérateur de séparation entre conditions (;)
+  ToggleOperator |   // Opérateur de bascule (!)
+  Comma |            // Séparateur de liste pour castsequence/castrandom
+  QuotedString |     // Chaîne entre guillemets
+  ResetOption |      // Option reset= pour castsequence
+  String |           // Chaîne de caractères (noms de sorts, etc.)
+  Id                 // Identifiant numérique
 }
 
 @tokens {
-  ShowIconTooltip { '#' ('show' | 'showtooltip') (' ' String)? }
+  // ============================================================================
+  // ANNOTATIONS DE MACRO (#show et #showtooltip)
+  // ============================================================================
+  ShowIconTooltip { '#' ('show' | 'showtooltip') (![\n\r])* }
 
-  nameAfterSpace { ' ' @asciiLetter+ }
+  // ============================================================================
+  // TOKENS POUR LES UNIT IDS (party1, raid10target, boss1targettarget, etc.)
+  // ============================================================================
+  // Ce token capture les patterns structurés pour éviter que Word ne les avale.
+  // Exemples: party1, party1target, party1targettarget, raid10, arena2pet, boss1target
+  UnitId {
+    (
+      ('party' | 'raid' | 'arena' | 'boss') 'pet'? @digit+ |
+      ('focus' | 'mouseover' | 'player' | 'pet' | 'target' | 'vehicle' | 'cursor' | 'none')
+    ) ('target')*
+  }
 
-  String { @asciiLetter+ nameAfterSpace* }
+  // ============================================================================
+  // TOKENS POUR LES CHAÎNES DE CARACTÈRES
+  // ============================================================================
+  // Support des caractères spéciaux dans les noms de sorts/objets:
+  // - Apostrophes: Hunter's Mark, Gul'dan
+  // - Parenthèses: Arcane Shot (Rank 1)
+  // - Deux-points: Polymorph: Sheep
+  // - Points d'exclamation: Welcome to the guild!
+  // - Points: Pulling in 3...
+  nameAfterSpace { $[ ]+ nameChar+ }
+  nameChar { @asciiLetter | @digit | '\'' | '-' | '_' | '(' | ')' | ':' | '!' | '.' }
+  
+  // Chaînes entre guillemets (pour support futur de /script)
+  QuotedString { '"' (!["\\] | '\\' _)* '"' }
+  
+  // Option reset= pour /castsequence (doit avoir priorité sur Word)
+  // Exemples: reset=target, reset=combat, reset=10, reset=10/shift
+  ResetOption { 'reset=' (@asciiLetter | @digit)+ ('/' (@asciiLetter | @digit)+)* }
+  
+  // Token @ pour la syntaxe [@unit] (alias de [target=unit])
+  AtSign { '@' }
+  
+  // Chaînes de caractères commençant par une lettre (pour noms de sorts/items)
+  // Note: UnitId a priorité sur String grâce à @precedence
+  String { 
+    @asciiLetter ((@asciiLetter | @digit | '-' | '_' | '\'' | '(' | ')' | '.' | ':' | '!')+ nameAfterSpace* | nameAfterSpace+)
+  }
 
+  // Identifiants numériques (ex: /use 13, /changeactionbar 2)
   Id { @digit+ }
 
-  Command { '/' commandName }
-
-  commandName {
-    'cast' | 'use' | 'target' | 'focus' | 'stopcasting' | 'assist' | 'cleartarget' | 'targetlasttarget' | 'dismount' |
-    'equip' | 'equipset' | 'equipslot' | 'follow' | 'leavevehicule' | 'randompet' | 'afk'
+  // ============================================================================
+  // COMMANDES DE MACRO (liste complète de Wowpedia_Macro_commands.md)
+  // ============================================================================
+  Command {
+    '/' (
+      // ---- Combat commands ----
+      'cast' | 'spell' | 'use' | 'castsequence' | 'castrandom' | 'userandom' |
+      'cancelaura' | 'cancelqueuedspell' | 'cancelform' | 'changeactionbar' |
+      'startattack' | 'stopattack' | 'stopcasting' | 'stopspelltarget' | 'swapactionbar' | 'usetoy' |
+      // ---- Targeting ----
+      'target' | 'targetexact' | 'targetenemy' | 'targetenemyplayer' |
+      'targetfriend' | 'targetfriendplayer' | 'targetparty' | 'targetraid' |
+      'targetlastenemy' | 'targetlastfriend' | 'targetlasttarget' |
+      'assist' | 'cleartarget' | 'focus' | 'clearfocus' |
+      // ---- Pet commands ----
+      'petattack' | 'petfollow' | 'petstay' | 'petmoveto' | 'petpassive' |
+      'petdefensive' | 'petassist' | 'petautocaston' | 'petautocastoff' |
+      'petautocasttoggle' | 'petdismiss' |
+      // ---- Battle pet ----
+      'randomfavoritepet' | 'summonpet' | 'dismisspet' |
+      // ---- Character ----
+      'dismount' | 'equip' | 'equipset' | 'equipslot' | 'follow' |
+      'friend' | 'ignore' | 'inspect' | 'leavevehicle' | 'randompet' |
+      'removefriend' | 'settitle' | 'trade' | 'unignore' |
+      // ---- Chat ----
+      'say' | 'yell' | 'party' | 'raid' | 'guild' | 'officer' |
+      'whisper' | 'reply' | 'emote' | 'afk' | 'dnd' | 'battleground' | 'rw' |
+      // ---- Guild ----
+      'guilddemote' | 'guilddisband' | 'guildinfo' | 'guildinvite' |
+      'guildleader' | 'guildquit' | 'guildmotd' | 'guildpromote' |
+      'guildroster' | 'guildremove' |
+      // ---- Party/Raid ----
+      'clearworldmarker' | 'invite' | 'ffa' | 'group' | 'master' |
+      'mainassist' | 'mainassistoff' | 'maintank' | 'maintankoff' |
+      'promote' | 'raidinfo' | 'readycheck' | 'requestinvite' |
+      'targetmarker' | 'threshold' | 'uninvite' | 'worldmarker' |
+      // ---- PvP ----
+      'duel' | 'forfeit' | 'pvp' | 'wargame' |
+      // ---- System ----
+      'console' | 'click' | 'disableaddons' | 'enableaddons' | 'help' |
+      'logout' | 'macrohelp' | 'played' | 'quit' | 'random' | 'reload' |
+      'script' | 'stopmacro' | 'time' | 'timetest' | 'who' |
+      // ---- Blizzard UI ----
+      'achievements' | 'calendar' | 'guildfinder' | 'dungeonfinder' |
+      'loot' | 'macro' | 'raidfinder' | 'share' | 'stopwatch' |
+      // ---- DevTools ----
+      'api' | 'tableinspect' | 'eventtrace' | 'framestack' | 'dump'
+    )
   }
 
-  Condition { '[' (conditionElement+ (',' ' '? conditionElement+)*)? ']' }
-
-  conditionElement {
-    ( 'no' ? conditionStatus) |
-    ('@' | 'target=') targetElement |
-    ('mod' | 'modifier') ':' ('shift' | 'ctrl' | 'alt') |
-    ('stance' | 'form' | 'spec') ':' @digit ('/' @digit)* |
-    'talent:' @digit '/' @digit |
-    ('equipped' | 'worn') ':' @asciiLetter+ |
-    'group' (':' ('party' | 'raid'))? |
-    'pet:' String |
-    ('channeling:' @asciiLetter+) |
-    'button:' @digit
-  }
-
-  conditionStatus {
-    'harm' | 'help' | 'dead' | 'indoors' | 'outdoors' | 'flyable' | 'flying' | 'exists' | 'stealth' | 'form' | 'mod' |
-    'channeling' | 'combat' | 'pvpcombat' | 'canexitvehicle' | 'mounted' | 'petbattle' | 'resting' | 'swimming'
-  }
-
-  targetElement {
-    (
-      ('party' 'pet'? @digit) |
-      ('raid' 'pet'? @digit @digit?) |
-      ('arena' 'pet'? @digit) |
-      ('boss' @digit) |
-      'focus' | 'mouseover' | 'cursor' | 'none' | 'pet' | 'player' | 'target' | 'vehicle'
-    ) 'target'*
-  }
-
-  ConditionOperator { ';' }
-
+  // ============================================================================
+  // OPÉRATEURS ET SYMBOLES
+  // ============================================================================
+  Comma { ',' }
   ToggleOperator { '!' }
-
-  NewLine { ('\n' | '\r' | '\n\r')+ }
-
-  space { $[ \t]+ }
+  ConditionOperator { ';' }
+  
+  // Priorités pour résoudre les conflits de tokens
+  // UnitId doit être testé avant String pour capturer party1, raid10, etc.
+  @precedence { 
+    NewLine,
+    ResetOption,
+    UnitId,
+    String,
+    space
+  }
+  
+  NewLine { '\r'? '\n' }
+  space { $[ \t] }
 }
 
+// ============================================================================
+// CONDITIONS DE MACRO (basées sur Making_a_macro.md ligne 686)
+// ============================================================================
+
+// Structure des conditions entre crochets
+Condition { '[' conditionList? ']' }
+conditionList { conditionElement (',' conditionElement)* }
+
+// Types de conditions possibles
+conditionElement {
+  negatedCondition |      // Conditions avec 'no' préfixé (toujours en premier pour éviter conflits)
+  targetCondition |       // Conditions de ciblage (@target)
+  modifierCondition |     // Modificateurs (shift, alt, ctrl) - reconnaissable par :
+  stanceCondition |       // Postures et formes - reconnaissable par : ou mots spécifiques
+  equipmentCondition |    // Équipement - reconnaissable par :
+  groupCondition |        // Conditions de groupe - reconnaissable par : ou mots spécifiques
+  petCondition |          // Conditions liées aux familiers - reconnaissable par :
+  buttonCondition |       // Conditions de boutons - reconnaissable par :
+  barCondition |          // Conditions de barre d'action - reconnaissable par :
+  talentCondition |       // Conditions de talents - reconnaissable par /
+  channelingCondition |   // Conditions de canalisation
+  combatCondition |       // Conditions de combat
+  statusCondition |       // Conditions de statut
+  environmentCondition    // Conditions d'environnement
+}
+
+// Condition avec préfixe 'no'
+negatedCondition { 
+  'no' (
+    'combat' | 'harm' | 'help' | 'pvp' | 'pvpcombat' |
+    'exists' | 'dead' | 'mounted' | 'resting' | 'stealth' | 
+    'possessed' | 'charmed' | 'swimming' | 'flying' | 'flyable' |
+    'floating' | 'falling'
+  )
+}
+
+// Exemples: mod:shift, modifier:ctrl/alt, mod:shift/ctrl/alt
+// Conditions de ciblage (@target ou target=) - les deux produisent le même AST
+targetCondition { (AtSign | 'target=') targetElement }
+
+// Modificateurs de touches et leurs combinaisons (utilise / comme OR)
+modifierCondition { 
+  ('mod' | 'modifier') ':' modifierList
+}
+
+// Postures/Formes (stance/form sont des alias)
+// Exemples: stance:1/2, form:3
+stanceCondition { 
+  ('stance' | 'form') ':' Id ('/' Id)* |
+  'shadowform' | 'moonkin' | 'bear' | 'cat'
+}
+
+// Conditions d'équipement (equipped/worn sont des alias)
+// Exemples: equipped:Shields, worn:Two-Handed Axes
+equipmentCondition { 
+  ('equipped' | 'worn') ':' String
+}
+
+// Conditions de groupe (raid/party)
+// Exemples: group:party, group:raid, party, raid
+groupCondition { 
+  'group:' ('party' | 'raid') |
+  'group' |
+  'raid' Id? |
+  'party' Id?
+}
+
+// Conditions liées aux familiers
+petCondition { 
+  'pet:' String
+}
+
+// Conditions de canalisation de sorts
+channelingCondition { 
+  'channeling' (':' String)?
+}
+
+// Conditions de boutons d'action (button: ou btn: comme alias)
+buttonCondition { ('button' | 'btn') ':' Id }
+
+// Conditions de barres d'action
+barCondition {
+  ('actionbar' | 'bar') ':' Id |
+  'bonusbar:' Id |
+  'possessbar' | 'overridebar' | 'vehicleui' | 'unithasvehicleui'
+}
+
+// Conditions de talents et spécialisations
+talentCondition {
+  'talent:' Id '/' Id |
+  'spec:' Id |
+  'specialization:' Id
+}
+
+// Conditions liées au combat
+combatCondition {
+  'combat' | 'harm' | 'help' | 'pvp' | 'pvpcombat'
+}
+
+// Conditions de statut du personnage
+statusCondition {
+  'exists' | 'dead' | 'alive' | 'mounted' | 'resting' |
+  'stealth' | 'possessed' | 'charmed' | 'cursor'
+}
+
+// Conditions liées à l'environnement
+environmentCondition {
+  'indoors' | 'outdoors' | 'swimming' | 'flying' | 'flyable' |
+  'floating' | 'falling'
+}
+
+
+// ============================================================================
+// TYPES DE CIBLES (pour @target ou target=)
+// ============================================================================
+// UnitId capture déjà les patterns structurés: party1, raid10target, focustarget, etc.
+// On utilise directement UnitId au lieu de parser 'party' Id 'target'*
+targetElement {
+  UnitId
+}
+
+// ============================================================================
+// LISTES DE MODIFICATEURS ET DE TALENTS
+// ============================================================================
+modifierList { modifier ('/' modifier)* }
+modifier { 'shift' | 'alt' | 'ctrl' }
+talentLevel { '5' | '10' | '15' | '20' | '25' | '30' | '35' | '40' | '45' | '50' }
+
+// Ignorer les espaces blancs (sauf dans les strings où ils sont gérés par nameAfterSpace)
 @skip { space }
-@skip {} {
-  dontSkipSpacesInStrings { String }
-}
 
+// Détection automatique des délimiteurs
 @detectDelim
